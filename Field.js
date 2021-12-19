@@ -1,6 +1,6 @@
 class Field { // AKA 2-space or 2D space
-  xWindow = [-10, 10, 1];
-  yWindow = [-10, 10, 1];
+  xWindow = new AxialWindow(-10, 10, 1);
+  yWindow = new AxialWindow(-10, 10, 1);
   #renderEngine = new TwoSpaceRenderEngine(this);
   #children = [];
 
@@ -22,6 +22,14 @@ class Field { // AKA 2-space or 2D space
     this.#children.push(child);
   }
 
+  setChildren(children) {
+    this.clearChildren();
+    children.forEach(child => this.addChild(child));
+  }
+
+  clearChildren() {
+    this.#children = [];
+  }
 
   /***
    * Map Function
@@ -52,9 +60,9 @@ class Field { // AKA 2-space or 2D space
   #drawAxes(weight=2) {
     strokeWeight(weight);
     stroke(255,0,0);
-    this.#renderEngine.line(this.xWindow[0], 0, this.xWindow[1], 0);
+    this.#renderEngine.line(this.xWindow.start, 0, this.xWindow.end, 0);
     stroke(0, 255, 0);
-    this.#renderEngine.line(0, this.yWindow[0], 0, this.yWindow[1]);
+    this.#renderEngine.line(0, this.yWindow.start, 0, this.yWindow.end);
     stroke(255);
     this.#renderEngine.point(0,0,2);
   }
@@ -62,70 +70,64 @@ class Field { // AKA 2-space or 2D space
   #drawGrid(weight=.1) {
     strokeWeight(weight);
     stroke(PRIMARY);
-    for (let x = this.xWindow[2]; x < this.xWindow[1]; x+=this.xWindow[2]) {
-      this.#renderEngine.line(x, this.yWindow[0], x, this.yWindow[1]);
+    for (let x = this.xWindow.step; x < this.xWindow.end; x+=this.xWindow.step) {
+      this.#renderEngine.line(x, this.yWindow.start, x, this.yWindow.end);
     }
-    for (let x = -this.xWindow[2]; x > this.xWindow[0]; x-=this.xWindow[2]) {
-      this.#renderEngine.line(x, this.yWindow[0], x, this.yWindow[1]);
+    for (let x = -this.xWindow.step; x > this.xWindow.start; x-=this.xWindow.step) {
+      this.#renderEngine.line(x, this.yWindow.start, x, this.yWindow.end);
     }
-    for (let y = this.yWindow[2]; y < this.yWindow[1]; y+=this.yWindow[2]) {
-      this.#renderEngine.line(this.xWindow[0], y, this.xWindow[1], y);
+    for (let y = this.yWindow.step; y < this.yWindow.end; y+=this.yWindow.step) {
+      this.#renderEngine.line(this.xWindow.start, y, this.xWindow.end, y);
     }
-    for (let y = -this.yWindow[2]; y > this.yWindow[0]; y-=this.yWindow[2]) {
-      this.#renderEngine.line(this.xWindow[0], y, this.xWindow[1], y);
+    for (let y = -this.yWindow.step; y > this.yWindow.start; y-=this.yWindow.step) {
+      this.#renderEngine.line(this.xWindow.start, y, this.xWindow.end, y);
     }
+  }
+
+  /***
+   * Transforms
+   */
+
+  zoom(scale) {
+    this.xWindow = AxialWindow.from(
+      {
+        start: this.xWindow.start + scale*this.xWindow.step, 
+        end: this.xWindow.end - scale*this.xWindow.step,
+        step: this.xWindow.step
+      }
+    );
+    this.yWindow = AxialWindow.from(
+      {
+        start: this.yWindow.start + scale*this.yWindow.step, 
+        end: this.yWindow.end - scale*this.yWindow.step, 
+        step: this.yWindow.step
+      }
+    );
+  }
+
+  translate(x, y) {
+    console.log(x,y);
   }
 
   /***
    * Getters
    */
   windowWidth() {
-    return this.xWindow[1] - this.xWindow[0];
+    return this.xWindow.end - this.xWindow.start;
   }
 
   windowHeight() {
-    return this.yWindow[1] - this.yWindow[0];
+    return this.yWindow.end - this.yWindow.start;
   }
 
   /***
    * Setters
    */
-  setXWindow(start, end, step=this.xWindow[2]) {
-    if (step<0) {
-      return false;
-    }
-    if (end < start) {
-      this.xWindow = this.minimumScale(start, end, step);
-      return false;
-    }
-    this.xWindow = [start, end, step];
-    return true;
+  setXWindow(window) {
+    this.xWindow = window;
   }
 
-  setYWindow(start, end, step=this.yWindow[2]) {
-    if (step<0) {
-      return false;
-    }
-    if (end < start) {
-      this.yWindow = this.minimumScale(start, end, step);
-      return false;
-    }
-    this.yWindow = [start, end, step];
-  }
-
-  zoom(scale) {
-    this.setXWindow(this.xWindow[0] + scale*this.xWindow[2], this.xWindow[1] - scale*this.xWindow[2]);
-    this.setYWindow(this.yWindow[0] + scale*this.yWindow[2], this.yWindow[1] - scale*this.yWindow[2])
-  }
-
-
-  /***
-   * Helpers
-   */
-  minimumScale(start, end, step) {
-    let middle = (start + end) / 2;
-    start = middle - step;
-    end = middle + step;
-    return [start, end, step];
+  setYWindow(window) {
+    this.yWindow = window;
   }
 }

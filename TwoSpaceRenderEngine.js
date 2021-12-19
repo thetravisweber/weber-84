@@ -16,4 +16,22 @@ class TwoSpaceRenderEngine {
     point(pos.x,pos.y)
   }
 
+  graph(func) {
+    noFill();
+    beginShape();
+    this.#samplePoints().forEach(x => {
+      let y = func(x);
+      let mapped = this.field.mapPoint(x, y)
+      vertex(mapped.x, mapped.y);
+    });
+    endShape();
+  }
+
+  #samplePoints() {
+    let acc = [];
+    for (let x = this.field.xWindow[0]; x < this.field.xWindow[1]; x+=this.field.windowWidth() / 1000) {
+      acc.push(x);
+    }
+    return acc;
+  }
 }

@@ -8,9 +8,15 @@ function setup() {
   noLoop();
   rectMode(CENTER);
 
+  let f1 = (x => x+5);
 
-  mainField.addChild(new Point(2, 2));
-  mainField.addChild(new Line(4, 5, -2, 1));
+  let kids = [
+    new Point(2, 2),
+    new Line(4, -5, -2, -2),
+    new GraphFunction((x => x*x + 4)),
+    new GraphFunction((x => sin(x)))
+  ];
+  mainField.setChildren(kids);
 }
 
 function draw() {
@@ -25,5 +31,10 @@ function windowResized() {
 
 function mouseWheel(event) {
   mainField.zoom(event.delta / 1000);
+  draw();
+}
+
+function mousePressed() {
+  mainField.translate(mouseX, mouseY);
   draw();
 }
