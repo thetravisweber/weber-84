@@ -1,16 +1,27 @@
 class Field { // AKA 2-space or 2D space
   xWindow = [-10, 10, 1];
   yWindow = [-10, 10, 1];
+  #renderEngine = new TwoSpaceRenderEngine(this);
+  #children = [];
 
   constructor() {
     this.reset();
-    this.renderEngine = new TwoSpaceRenderEngine(this);
   }
 
   reset() {
     this.rotation = new createVector(0, 0);
     this.position = new createVector(width/2, height/2);
   }
+
+  /***
+   * Parenting
+   */
+
+  addChild(child) {
+    child.setRenderer(this.#renderEngine);
+    this.#children.push(child);
+  }
+
 
   /***
    * Map Function
@@ -26,30 +37,42 @@ class Field { // AKA 2-space or 2D space
    * Draw Methods
    */
 
-  drawAxes(includeGrids=false, weight=2) {
-    strokeWeight(weight);
-    stroke(255,0,0);
-    this.renderEngine.line(this.xWindow[0], 0, this.xWindow[1], 0);
-    stroke(0, 255, 0);
-    this.renderEngine.line(0, this.yWindow[0], 0, this.yWindow[1]);
-    stroke(255);
-    this.renderEngine.point(0,0,2);
+  draw() {
+    this.#drawGrid();
+    this.#drawAxes();
+    this.#drawChildren();
   }
 
-  drawGrid(weight=.1) {
+  #drawChildren() {
+    this.#children.forEach(child => {
+      child.draw();
+    });
+  }
+
+  #drawAxes(weight=2) {
+    strokeWeight(weight);
+    stroke(255,0,0);
+    this.#renderEngine.line(this.xWindow[0], 0, this.xWindow[1], 0);
+    stroke(0, 255, 0);
+    this.#renderEngine.line(0, this.yWindow[0], 0, this.yWindow[1]);
+    stroke(255);
+    this.#renderEngine.point(0,0,2);
+  }
+
+  #drawGrid(weight=.1) {
     strokeWeight(weight);
     stroke(PRIMARY);
     for (let x = this.xWindow[2]; x < this.xWindow[1]; x+=this.xWindow[2]) {
-      this.renderEngine.line(x, this.yWindow[0], x, this.yWindow[1]);
+      this.#renderEngine.line(x, this.yWindow[0], x, this.yWindow[1]);
     }
     for (let x = -this.xWindow[2]; x > this.xWindow[0]; x-=this.xWindow[2]) {
-      this.renderEngine.line(x, this.yWindow[0], x, this.yWindow[1]);
+      this.#renderEngine.line(x, this.yWindow[0], x, this.yWindow[1]);
     }
     for (let y = this.yWindow[2]; y < this.yWindow[1]; y+=this.yWindow[2]) {
-      this.renderEngine.line(this.xWindow[0], y, this.xWindow[1], y);
+      this.#renderEngine.line(this.xWindow[0], y, this.xWindow[1], y);
     }
     for (let y = -this.yWindow[2]; y > this.yWindow[0]; y-=this.yWindow[2]) {
-      this.renderEngine.line(this.xWindow[0], y, this.xWindow[1], y);
+      this.#renderEngine.line(this.xWindow[0], y, this.xWindow[1], y);
     }
   }
 

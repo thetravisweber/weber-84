@@ -8,14 +8,14 @@ function setup() {
   noLoop();
   rectMode(CENTER);
 
+
+  mainField.addChild(new Point(2, 2));
+  mainField.addChild(new Line(4, 5, -2, 1));
 }
 
 function draw() {
   background(BKG);
-  mainField.drawGrid();
-  mainField.drawAxes();
-  mainField.renderEngine.line(0, 0, 2, 3);
-  mainField.renderEngine.line(4, 5, -2, 2);
+  mainField.draw();
 }
 
 function windowResized() {
