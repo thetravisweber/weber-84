@@ -12,12 +12,18 @@ function setup() {
 
 function draw() {
   background(BKG);
-  fill(255);
   mainField.drawGrid();
   mainField.drawAxes();
+  mainField.renderEngine.line(0, 0, 2, 3);
+  mainField.renderEngine.line(4, 5, -2, 2);
 }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   mainField.reset();
+}
+
+function mouseWheel(event) {
+  mainField.zoom(event.delta / 1000);
+  draw();
 }
