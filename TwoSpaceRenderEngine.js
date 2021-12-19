@@ -29,7 +29,7 @@ class TwoSpaceRenderEngine {
 
   #samplePoints() {
     let acc = [];
-    for (let x = this.field.xWindow[0]; x < this.field.xWindow[1]; x+=this.field.windowWidth() / 1000) {
+    for (let x = this.field.xWindow.start; x < this.field.xWindow.end; x+=this.field.windowWidth() / 1000) {
       acc.push(x);
     }
     return acc;

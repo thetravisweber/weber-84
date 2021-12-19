@@ -105,8 +105,29 @@ class Field { // AKA 2-space or 2D space
     );
   }
 
+
   translate(x, y) {
-    console.log(x,y);
+
+    this.position = createVector(x, y);
+
+    let translateOffset = this.windowTranslation(x, y);
+    this.setXWindow({
+      start : translateOffset.x - this.windowWidth() * 0.5,
+      end : translateOffset.x + this.windowWidth() * 0.5,
+      step : this.xWindow.step
+    });
+    this.setYWindow({
+      start : translateOffset.y - this.windowHeight() * 0.5,
+      end : translateOffset.y + this.windowHeight() * 0.5,
+      step : this.yWindow.step
+    });
+  }
+
+  windowTranslation(x, y) {
+    let x2 = (width * 0.5 - x) / width * this.windowWidth();
+    let y2 = -(height * 0.5 - y) / height * this.windowHeight();
+    
+    return createVector(x2, y2);
   }
 
   /***
@@ -118,6 +139,21 @@ class Field { // AKA 2-space or 2D space
 
   windowHeight() {
     return this.yWindow.end - this.yWindow.start;
+  }
+
+  windowCenter() {
+    return {
+      x : this.xWindow.start + this.windowWidth() * 0.5,
+      y : this.yWindow.start + this.windowHeight() * 0.5
+    }
+  }
+
+  windowCenterHorizontal() {
+    return this.windowCenter().x;
+  }
+
+  windowCenterVertical() {
+    return this.windowCenter().y;
   }
 
   /***
