@@ -31,6 +31,10 @@ class Field { // AKA 2-space or 2D space
     this.#children = [];
   }
 
+  removeLastChild() {
+    this.#children.splice(this.#children.length - 1, 1);
+  }
+
   /***
    * Map Function
    */
@@ -38,6 +42,12 @@ class Field { // AKA 2-space or 2D space
   mapPoint(x1, y1) {
     let x2 = (x1/this.windowWidth())*width + this.position.x;
     let y2 = -((y1/this.windowHeight())) * height + this.position.y;
+    return createVector(x2, y2);
+  }
+
+  unmapPoint(x1, y1) {
+    let x2 = ( x1 - this.position.x ) * this.windowWidth() / width;
+    let y2 = - ( y1 - this.position.y ) * this.windowHeight() / height;
     return createVector(x2, y2);
   }
 
@@ -105,7 +115,7 @@ class Field { // AKA 2-space or 2D space
     );
   }
 
-
+  // Set origin to position x, y
   translate(x, y) {
 
     this.position = createVector(x, y);
@@ -123,10 +133,14 @@ class Field { // AKA 2-space or 2D space
     });
   }
 
+  translateBy(deltaX, deltaY) {
+    this.translate(this.position.x + deltaX, this.position.y + deltaY);
+  }
+
   windowTranslation(x, y) {
     let x2 = (width * 0.5 - x) / width * this.windowWidth();
     let y2 = -(height * 0.5 - y) / height * this.windowHeight();
-    
+
     return createVector(x2, y2);
   }
 
