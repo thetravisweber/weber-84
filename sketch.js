@@ -6,7 +6,7 @@ const DRAG_CANVAS = 'DRAG_CANVAS', ANALYZE = 'ANALYZE';
 const ADD_POINT = 'ADD_POINT', ADD_LINE = 'ADD_LINE';
 
 const POINT = 'POINT', LINE = 'LINE', FUNCTION = 'FUNCTION';
-let userActionMode = ADD_POINT;
+let userActionMode = DRAG_CANVAS;
 
 function setup() {
   createCanvas(windowWidth * .99, windowHeight * .99);
@@ -18,6 +18,7 @@ function setup() {
 
   let kids = [
     new Line(4, 5, 8, 7),
+    new Point(4, 6),
     new GraphFunction((x => x*x + 4)),
     new GraphFunction((x => sin(x)))
   ];
@@ -64,6 +65,7 @@ function keyPressed() {
       setUserActionMode(DRAG_CANVAS);
       break;
     case ANALYZE_HOTKEY_KEYCODE :
+      alert('Go Back\nAnalyze Mode is Very Broken')
       setUserActionMode(ANALYZE);
       break;
     default :
