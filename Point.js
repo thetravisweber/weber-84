@@ -3,9 +3,12 @@ class Point extends GraphObject {
     super()
     this.x = x;
     this.y = y;
+    this.type = POINT;
   }
 
-  draw() {
+  draw(color=PRIMARY, weight=POINT_WEIGHT) {
+    stroke(color);
+    strokeWeight(weight);
     this._renderer.point(this.x, this.y);
   }
 }

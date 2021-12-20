@@ -31,6 +31,10 @@ class Field { // AKA 2-space or 2D space
     this.#children = [];
   }
 
+  removeLastChild() {
+    this.#children.splice(this.#children.length - 1, 1);
+  }
+
   /***
    * Map Function
    */
@@ -39,6 +43,93 @@ class Field { // AKA 2-space or 2D space
     let x2 = (x1/this.windowWidth())*width + this.position.x;
     let y2 = -((y1/this.windowHeight())) * height + this.position.y;
     return createVector(x2, y2);
+  }
+
+  unmapPoint(x1, y1) {
+    let x2 = ( x1 - this.position.x ) * this.windowWidth() / width;
+    let y2 = - ( y1 - this.position.y ) * this.windowHeight() / height;
+    return createVector(x2, y2);
+  }
+
+  findGraphElement(x, y) {
+    const DISTANCE_CUSHION = 100;
+    let closestElement;
+    let distance;
+    
+    this.#children.forEach(child => {
+      switch (child.type) {
+        case POINT :
+          distance = this.distanceToPoint(child, x, y, DISTANCE_CUSHION);
+          break;
+        case LINE :
+          distance = this.distanceToLine(child, x, y, DISTANCE_CUSHION);
+          break;
+        case FUNCTION :
+          distance = this.distanceToFunction(child, x, y, DISTANCE_CUSHION);
+          break;
+      }
+
+      if (!closestElement || distance < closestElement.distance) {
+        closestElement = {
+          element : child,
+          distance : distance
+        };
+      }
+      
+    });
+    if (closestElement)
+      return closestElement.element;
+  }
+
+  distanceToPoint(point, x, y, cushion) {
+
+    let mapped = this.mapPoint(point.x, point.y);
+    let distanceToPoint = dist(mapped.x, mapped.y, x, y);
+    if (distanceToPoint < cushion)
+      return distanceToPoint;
+  }
+
+  distanceToLine(line, x, y, cushion) {
+
+    let unmapped = this.unmapPoint(x, y);
+    let unmappedX = unmapped.x;
+    let unmappedY = unmapped.y;
+
+    let distanceToLine;
+    let slope = line.slope();
+    /***
+     *  Distance formula for form
+     *  Ax+By+C=0
+     *  A = - slope
+     *  B = 1
+     *  C = - y-intercept
+     */ 
+
+    let closestXForInfiniteLine = ( ( unmappedX + slope * unmappedY ) - slope * line.yIntercept() ) / sq( slope + 1 );
+    let mappedClosestPoint;
+    if ( closestXForInfiniteLine < line.lesserX() || closestXForInfiniteLine > line.greaterX() ) {
+      let dist1 = dist(unmappedX, unmappedY, line.x1, line.y1);
+      let dist2 = dist(unmappedX, unmappedY, line.x2, line.y2);
+      
+      if (dist1 < dist2) {
+        mappedClosestPoint = this.mapPoint(line.x1, line.y1);
+      } else {
+        mappedClosestPoint = this.mapPoint(line.x2, line.y2);
+      }
+    } else {
+      let closestYForInfiniteLine = -slope * ( ( -unmappedX - slope * unmappedY ) + line.yIntercept() ) / sq( slope + 1 );
+      mappedClosestPoint = this.mapPoint(closestXForInfiniteLine, closestYForInfiniteLine);
+    }
+
+    distanceToLine = dist(x, y, mappedClosestPoint.x, mappedClosestPoint.y);
+    console.log(distanceToLine);
+    
+    if (distanceToLine < cushion)
+      return distanceToLine;
+  }
+
+  distanceToFunction(func, x, y, cushion) {
+
   }
 
   /***
@@ -105,8 +196,33 @@ class Field { // AKA 2-space or 2D space
     );
   }
 
+  // Set origin to position x, y
   translate(x, y) {
-    console.log(x,y);
+
+    this.position = createVector(x, y);
+
+    let translateOffset = this.windowTranslation(x, y);
+    this.setXWindow({
+      start : translateOffset.x - this.windowWidth() * 0.5,
+      end : translateOffset.x + this.windowWidth() * 0.5,
+      step : this.xWindow.step
+    });
+    this.setYWindow({
+      start : translateOffset.y - this.windowHeight() * 0.5,
+      end : translateOffset.y + this.windowHeight() * 0.5,
+      step : this.yWindow.step
+    });
+  }
+
+  translateBy(deltaX, deltaY) {
+    this.translate(this.position.x + deltaX, this.position.y + deltaY);
+  }
+
+  windowTranslation(x, y) {
+    let x2 = (width * 0.5 - x) / width * this.windowWidth();
+    let y2 = -(height * 0.5 - y) / height * this.windowHeight();
+
+    return createVector(x2, y2);
   }
 
   /***
@@ -118,6 +234,21 @@ class Field { // AKA 2-space or 2D space
 
   windowHeight() {
     return this.yWindow.end - this.yWindow.start;
+  }
+
+  windowCenter() {
+    return {
+      x : this.xWindow.start + this.windowWidth() * 0.5,
+      y : this.yWindow.start + this.windowHeight() * 0.5
+    }
+  }
+
+  windowCenterHorizontal() {
+    return this.windowCenter().x;
+  }
+
+  windowCenterVertical() {
+    return this.windowCenter().y;
   }
 
   /***
