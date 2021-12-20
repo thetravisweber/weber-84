@@ -51,6 +51,87 @@ class Field { // AKA 2-space or 2D space
     return createVector(x2, y2);
   }
 
+  findGraphElement(x, y) {
+    const DISTANCE_CUSHION = 100;
+    let closestElement;
+    let distance;
+    
+    this.#children.forEach(child => {
+      switch (child.type) {
+        case POINT :
+          distance = this.distanceToPoint(child, x, y, DISTANCE_CUSHION);
+          break;
+        case LINE :
+          distance = this.distanceToLine(child, x, y, DISTANCE_CUSHION);
+          break;
+        case FUNCTION :
+          distance = this.distanceToFunction(child, x, y, DISTANCE_CUSHION);
+          break;
+      }
+
+      if (!closestElement || distance < closestElement.distance) {
+        closestElement = {
+          element : child,
+          distance : distance
+        };
+      }
+      
+    });
+    if (closestElement)
+      return closestElement.element;
+  }
+
+  distanceToPoint(point, x, y, cushion) {
+
+    let mapped = this.mapPoint(point.x, point.y);
+    let distanceToPoint = dist(mapped.x, mapped.y, x, y);
+    if (distanceToPoint < cushion)
+      return distanceToPoint;
+  }
+
+  distanceToLine(line, x, y, cushion) {
+
+    let unmapped = this.unmapPoint(x, y);
+    let unmappedX = unmapped.x;
+    let unmappedY = unmapped.y;
+
+    let distanceToLine;
+    let slope = line.slope();
+    /***
+     *  Distance formula for form
+     *  Ax+By+C=0
+     *  A = - slope
+     *  B = 1
+     *  C = - y-intercept
+     */ 
+
+    let closestXForInfiniteLine = ( ( unmappedX + slope * unmappedY ) - slope * line.yIntercept() ) / sq( slope + 1 );
+    let mappedClosestPoint;
+    if ( closestXForInfiniteLine < line.lesserX() || closestXForInfiniteLine > line.greaterX() ) {
+      let dist1 = dist(unmappedX, unmappedY, line.x1, line.y1);
+      let dist2 = dist(unmappedX, unmappedY, line.x2, line.y2);
+      
+      if (dist1 < dist2) {
+        mappedClosestPoint = this.mapPoint(line.x1, line.y1);
+      } else {
+        mappedClosestPoint = this.mapPoint(line.x2, line.y2);
+      }
+    } else {
+      let closestYForInfiniteLine = -slope * ( ( -unmappedX - slope * unmappedY ) + line.yIntercept() ) / sq( slope + 1 );
+      mappedClosestPoint = this.mapPoint(closestXForInfiniteLine, closestYForInfiniteLine);
+    }
+
+    distanceToLine = dist(x, y, mappedClosestPoint.x, mappedClosestPoint.y);
+    console.log(distanceToLine);
+    
+    if (distanceToLine < cushion)
+      return distanceToLine;
+  }
+
+  distanceToFunction(func, x, y, cushion) {
+
+  }
+
   /***
    * Draw Methods
    */

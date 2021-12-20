@@ -10,8 +10,7 @@ class TwoSpaceRenderEngine {
     line(start.x, start.y, end.x, end.y); 
   }
 
-  point(x1, y1, weight=4) {
-    strokeWeight(weight);
+  point(x1, y1) {
     let pos = this.field.mapPoint(x1, y1);
     point(pos.x,pos.y)
   }
