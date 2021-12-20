@@ -27,6 +27,10 @@ class Field { // AKA 2-space or 2D space
     children.forEach(child => this.addChild(child));
   }
 
+  getChild(childIndex) {
+    return this.#children[childIndex];
+  }
+
   clearChildren() {
     this.#children = [];
   }
@@ -50,84 +54,94 @@ class Field { // AKA 2-space or 2D space
   }
 
   unmapPoint(x1, y1) {
-    let x2 = ( x1 - this.position.x ) * this.windowWidth() / width;
-    let y2 = - ( y1 - this.position.y ) * this.windowHeight() / height;
+
+    let rotationMatrix = RotationMatrix.from(-this.rotation);
+    let pos = rotationMatrix.applyTo(createVector(x1 - this.position.x, y1 - this.position.y));
+
+    let x2 = pos.x * this.windowWidth() / width;
+    let y2 = - pos.y * this.windowHeight() / height;
+
     return createVector(x2, y2);
   }
 
   findGraphElement(x, y) {
-    const DISTANCE_CUSHION = 100;
-    let closestElement;
-    let distance;
+    const DISTANCE_CUSHION = 5;
     
-    this.#children.forEach(child => {
+    for (let i = 0; i < this.#children.length; i++) {
+      let child = this.#children[i];
       switch (child.type) {
         case POINT :
-          distance = this.distanceToPoint(child, x, y, DISTANCE_CUSHION);
+          if (this.isOverPoint(child, x, y, DISTANCE_CUSHION))
+            return child;
           break;
         case LINE :
-          distance = this.distanceToLine(child, x, y, DISTANCE_CUSHION);
+          if (this.isOverLine(child, x, y, DISTANCE_CUSHION))
+            return child;
           break;
         case FUNCTION :
-          distance = this.distanceToFunction(child, x, y, DISTANCE_CUSHION);
+          if  (this.isOverFunction(child._func, x, y, DISTANCE_CUSHION))
+            return child;
           break;
       }
-
-      if (!closestElement || distance < closestElement.distance) {
-        closestElement = {
-          element : child,
-          distance : distance
-        };
-      }
-      
-    });
-    if (closestElement)
-      return closestElement.element;
+    }
   }
 
-  distanceToPoint(point, x, y, cushion) {
+  isOverPoint(point, x, y, cushion) {
     let mapped = this.mapPoint(point.x, point.y);
-    let distanceToPoint = dist(mapped.x, mapped.y, x, y);
-    if (distanceToPoint < cushion)
-      return distanceToPoint;
+    if (dist(mapped.x, mapped.y, x, y) < cushion)
+      return true;
   }
 
-  distanceToLine(line, x, y, cushion) {
-
+  isOverLine(line, x, y, cushion) {
     let unmapped = this.unmapPoint(x, y);
     let unmappedX = unmapped.x;
     let unmappedY = unmapped.y;
 
-    let distanceToLine;
-    let slope = line.slope();
     /***
-     *  Distance formula for form
+     *  Distance formula for the line
      *  Ax+By+C=0
-     *  A = - slope
+     *  A = -slope
      *  B = 1
-     *  C = - y-intercept
+     *  C = -y-intercept
      */ 
+    let distanceToLine;
 
-    let closestXForInfiniteLine = ( ( unmappedX + slope * unmappedY ) - slope * line.yIntercept() ) / sq( slope + 1 );
+    let m = line.slope();
+    let b = line.yIntercept();
+    
+    let closestXForInfiniteLine = ( ( unmappedX + m * unmappedY ) - m * b ) / ( sq(m) + 1 );
     let mappedClosestPoint;
     if ( closestXForInfiniteLine < line.lesserX() || closestXForInfiniteLine > line.greaterX() ) {
-      let dist1 = dist(unmappedX, unmappedY, line.x1, line.y1);
-      let dist2 = dist(unmappedX, unmappedY, line.x2, line.y2);
-      
-      if (dist1 < dist2) {
+      let distToP1 = dist(unmappedX, unmappedY, line.x1, line.y1);
+      let distToP2 = dist(unmappedX, unmappedY, line.x2, line.y2);
+      if (distToP1 < distToP2) {
         mappedClosestPoint = this.mapPoint(line.x1, line.y1);
       } else {
         mappedClosestPoint = this.mapPoint(line.x2, line.y2);
       }
     } else {
-      let closestYForInfiniteLine = -slope * ( ( -unmappedX - slope * unmappedY ) + line.yIntercept() ) / sq( slope + 1 );
+      let closestYForInfiniteLine = ( m * ( unmappedX + m * unmappedY ) + b ) / ( sq(m) + 1 );
       mappedClosestPoint = this.mapPoint(closestXForInfiniteLine, closestYForInfiniteLine);
     }
 
     distanceToLine = dist(x, y, mappedClosestPoint.x, mappedClosestPoint.y);
-    console.log(distanceToLine);
+    if (distanceToLine < cushion) 
+      return true;
+  }
+
+  isOverFunction(func, x, y, cushion) {
+    const NUMBER_OF_ATTEMPTS = 100;
     
-    if (distanceToLine < cushion) return distanceToLine;
+    // checks if circle radius cushion around point (x, y) crosses func
+    let unmapped = this.unmapPoint(x, y);
+    let funcOfUnmapped = func(unmapped.x);
+    for (let t = 0; t < TWO_PI; t += TWO_PI / NUMBER_OF_ATTEMPTS) {
+
+      let unmappedPointAtCushionDist = this.unmapPoint(x+cushion*cos(t), y+cushion*sin(t));
+      if ( (func(unmappedPointAtCushionDist.x) > unmappedPointAtCushionDist.y) != (funcOfUnmapped > unmapped.y))
+        return true;
+
+    }
   }
 
   /***

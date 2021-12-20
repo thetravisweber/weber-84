@@ -15,11 +15,9 @@ function setup() {
   rectMode(CENTER);
 
   let kids = [
-    new Line(4, 5, 8, 7),
-    new Point(4, 6),
     new GraphFunction((x => x*x + 4)),
-    new GraphFunction((x => sin(x))),
-    new Square(createVector(-4, 4), 2)
+    new Line(4, 5, 8, 7),
+    new Point(4, 6)
   ];
   mainField.setChildren(kids);
 }

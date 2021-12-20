@@ -9,6 +9,7 @@ function keyPressed(event) {
   const ADD_LINE_HOTKEY = 'l';
   const DRAG_CANVAS_HOTKEY = 'm';
   const ANALYZE_HOTKEY = 'a';
+  const FULLSCREEN_HOTKEY = 'f';
   const ROTATE_LEFT_HOTKEY = 'ArrowLeft';
   const ROTATE_RIGHT_HOTKEY = 'ArrowRight';
 
@@ -24,8 +25,10 @@ function keyPressed(event) {
       setUserActionMode(DRAG_CANVAS);
       break;
     case ANALYZE_HOTKEY :
-      alert('Go Back\nAnalyze Mode is Very Broken')
       setUserActionMode(ANALYZE);
+      break;
+    case FULLSCREEN_HOTKEY :
+      toggleFullscreen();
       break;
     case ROTATE_LEFT_HOTKEY:
       mainField.rotate(PI/36);
@@ -35,10 +38,43 @@ function keyPressed(event) {
       mainField.rotate(-PI/36);
       draw();
       break;
-    default :
-      console.log(keyCode);
   }
 
+}
+
+let windowIsFullscreen = false;
+function toggleFullscreen() {
+  if (windowIsFullscreen) {
+    closeFullscreen();
+  } else {
+    openFullscreen();
+  }
+
+}
+  
+/* View in fullscreen */
+function openFullscreen() {
+  windowIsFullscreen = true;
+  let elem = document.documentElement;
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) { /* Safari */
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) { /* IE11 */
+    elem.msRequestFullscreen();
+  }
+}
+
+/* Close fullscreen */
+function closeFullscreen() {
+  windowIsFullscreen = false;
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.webkitExitFullscreen) { /* Safari */
+    document.webkitExitFullscreen();
+  } else if (document.msExitFullscreen) { /* IE11 */
+    document.msExitFullscreen();
+  }
 }
 
 function setUserActionMode(mode) {
@@ -46,6 +82,7 @@ function setUserActionMode(mode) {
 }
 
 function mousePressed() {
+
   switch (mouseActionMode()) {
     case DRAG_CANVAS :
       break;
@@ -169,17 +206,12 @@ function userInputMode() {
 let analyzedElement;
 function hoverAnalysis(x, y) {
   let newElement = mainField.findGraphElement(x, y);
-  console.log('OLD');
-  console.log(analyzedElement);
-  console.log('NEW');
-  console.log(newElement);
   if (newElement == analyzedElement)
     return;
-
   analyzedElement = newElement;
-  draw();
 
-  if (newElement) {
+  draw();
+  if (analyzedElement) {
     newElement.highlight();
   }
 }
