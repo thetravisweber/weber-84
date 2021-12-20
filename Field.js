@@ -9,7 +9,7 @@ class Field { // AKA 2-space or 2D space
   }
 
   reset() {
-    this.rotation = new createVector(0, 0);
+    this.rotation = 0;
     this.position = new createVector(width/2, height/2);
   }
 
@@ -40,9 +40,13 @@ class Field { // AKA 2-space or 2D space
    */
 
   mapPoint(x1, y1) {
-    let x2 = (x1/this.windowWidth())*width + this.position.x;
-    let y2 = -((y1/this.windowHeight())) * height + this.position.y;
-    return createVector(x2, y2);
+    let x2 = (x1/this.windowWidth())*width;
+    let y2 = -((y1/this.windowHeight())) * height;
+
+    let rotationMatrix = RotationMatrix.from(this.rotation);
+    let pos = rotationMatrix.applyTo(createVector(x2, y2));
+
+    return createVector(pos.x + this.position.x, pos.y + this.position.y);
   }
 
   unmapPoint(x1, y1) {
@@ -82,7 +86,6 @@ class Field { // AKA 2-space or 2D space
   }
 
   distanceToPoint(point, x, y, cushion) {
-
     let mapped = this.mapPoint(point.x, point.y);
     let distanceToPoint = dist(mapped.x, mapped.y, x, y);
     if (distanceToPoint < cushion)
@@ -124,12 +127,7 @@ class Field { // AKA 2-space or 2D space
     distanceToLine = dist(x, y, mappedClosestPoint.x, mappedClosestPoint.y);
     console.log(distanceToLine);
     
-    if (distanceToLine < cushion)
-      return distanceToLine;
-  }
-
-  distanceToFunction(func, x, y, cushion) {
-
+    if (distanceToLine < cushion) return distanceToLine;
   }
 
   /***
@@ -212,6 +210,10 @@ class Field { // AKA 2-space or 2D space
       end : translateOffset.y + this.windowHeight() * 0.5,
       step : this.yWindow.step
     });
+  }
+
+  rotate(theta) {
+    this.rotation += theta;
   }
 
   translateBy(deltaX, deltaY) {
