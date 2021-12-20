@@ -1,190 +1,185 @@
-class DefaultInterface {
 
-  lineStart;
-  resetLineStart();
+function mouseWheel(event) {
+  mainField.zoom(event.delta / 1000);
+  draw();
+}
 
-  pMouseClick = {
-    x : -1,
-    y : -1,
-    time : -1,
-    released : -1
-  };
+function keyPressed(event) {
+  const ADD_POINT_HOTKEY = 'p';
+  const ADD_LINE_HOTKEY = 'l';
+  const DRAG_CANVAS_HOTKEY = 'm';
+  const ANALYZE_HOTKEY = 'a';
+  const ROTATE_LEFT_HOTKEY = 'ArrowLeft';
+  const ROTATE_RIGHT_HOTKEY = 'ArrowRight';
 
-  constructor() {
 
-  }
-
-  mouseWheel(event) {
-    mainField.zoom(event.delta / 1000);
-    draw();
-  }
-
-  keyPressed(event) {
-    const ADD_POINT_HOTKEY = 'p';
-    const ADD_LINE_HOTKEY = 'l';
-    const DRAG_CANVAS_HOTKEY = 'm';
-    const ANALYZE_HOTKEY = 'a';
-    const ROTATE_FORWARD = 'ArrowLeft';
-    const ROTATE_BACK = 'ArrowRight';
-
-    switch (event.key) {
-      case ADD_POINT_HOTKEY :
-        setUserActionMode(ADD_POINT);
-        break;
-      case ADD_LINE_HOTKEY :
-        setUserActionMode(ADD_LINE);
-        break;
-      case DRAG_CANVAS_HOTKEY :
-        setUserActionMode(DRAG_CANVAS);
-        break;
-      case ANALYZE_HOTKEY :
-        alert('Go Back\nAnalyze Mode is Very Broken')
-        setUserActionMode(ANALYZE);
-        break;
-      case ROTATE_FORWARD :
-        mainField.rotate(PI/40);
-        draw();
-        break;
-      case ROTATE_BACK :
-        mainField.rotate(-PI/40);
-        draw();
-        break;
-      default :
-        console.log(key);
-    }
-
-  }
-
-  setUserActionMode(mode) {
-    userActionMode = mode;
-  }
-
-  mousePressed() {
-    switch (mouseActionMode()) {
-      case DRAG_CANVAS :
-        break;
-      case ADD_LINE :
-        registerMousePressForNewLine();
-        break;
-      case ADD_POINT :
-        addPoint(mouseX, mouseY);
-        break;
-      case ANALYZE :
-        break;
-    }
-    setMouseDownMemory();
-  }
-
-  registerMousePressForNewLine() {
-    if (!lineStart)
-      return startLine();
-    
-    let p1 = mainField.unmapPoint(lineStart.x, lineStart.y);
-    let p2 = mainField.unmapPoint(mouseX, mouseY);
-    mainField.addChild(new Line(p1.x, p1.y, p2.x, p2.y));
-    draw();
-
-    resetLineStart();
-  }
-
-  startLine() {
-    lineStart = {
-      x : mouseX,
-      y : mouseY
-    }
-  }
-
-  resetLineStart() {
-    lineStart = false;
-  }
-
-  addPoint(x, y) {
-    let map = mainField.unmapPoint(x, y);
-    mainField.addChild(new Point(map.x, map.y));
-    draw();
-  }
-
-  moveLastPoint(x, y) {
-    mainField.removeLastChild();
-    addPoint(x, y);
-  }
-
-  mouseReleased() {
-    setMouseUpMemory();
-  }
-
-  mouseMoved() {
-    switch (mouseActionMode()) {
-      case ANALYZE :
-        hoverAnalysis(mouseX, mouseY);
-    }
-  }
-
-  mouseDragged() {
-    switch (mouseActionMode()) {
-      case DRAG_CANVAS :
-        dragCanvas();
-        break;
-      case ADD_POINT :
-        moveLastPoint(mouseX, mouseY);
-        break;
-    }
-  }
-
-  dragCanvas() {
-    if (isValidMouseDraggedCoords()) {
-      mainField.translateBy(mouseX - pMouseClick.x, mouseY - pMouseClick.y);
+  switch (event.key) {
+    case ADD_POINT_HOTKEY :
+      setUserActionMode(ADD_POINT);
+      break;
+    case ADD_LINE_HOTKEY :
+      setUserActionMode(ADD_LINE);
+      break;
+    case DRAG_CANVAS_HOTKEY :
+      setUserActionMode(DRAG_CANVAS);
+      break;
+    case ANALYZE_HOTKEY :
+      alert('Go Back\nAnalyze Mode is Very Broken')
+      setUserActionMode(ANALYZE);
+      break;
+    case ROTATE_LEFT_HOTKEY:
+      mainField.rotate(PI/36);
       draw();
-    }
-    setMouseDownMemory();
+      break;
+    case ROTATE_RIGHT_HOTKEY:
+      mainField.rotate(-PI/36);
+      draw();
+      break;
+    default :
+      console.log(keyCode);
   }
 
-  isValidMouseDraggedCoords() {
-    return (!pMouseClick.released) && (pMouseClick.x !== mouseX || pMouseClick.y !== mouseY); 
+}
+
+function setUserActionMode(mode) {
+  userActionMode = mode;
+}
+
+function mousePressed() {
+  switch (mouseActionMode()) {
+    case DRAG_CANVAS :
+      break;
+    case ADD_LINE :
+      registerMousePressForNewLine();
+      break;
+    case ADD_POINT :
+      addPoint(mouseX, mouseY);
+      break;
+    case ANALYZE :
+      break;
   }
+  setMouseDownMemory();
+}
 
-  setMouseUpMemory() {
-    pMouseClick.released = millis();
+let lineStart;
+resetLineStart();
+
+function registerMousePressForNewLine() {
+  if (!lineStart)
+    return startLine();
+  
+  let p1 = mainField.unmapPoint(lineStart.x, lineStart.y);
+  let p2 = mainField.unmapPoint(mouseX, mouseY);
+  mainField.addChild(new Line(p1.x, p1.y, p2.x, p2.y));
+  draw();
+
+  resetLineStart();
+}
+
+function startLine() {
+  lineStart = {
+    x : mouseX,
+    y : mouseY
   }
+}
 
-  setMouseDownMemory() {
-    pMouseClick = {
-      x : mouseX,
-      y : mouseY,
-      time : millis(),
-      released : false
-    }
+function resetLineStart() {
+  lineStart = false;
+}
+
+function addPoint(x, y) {
+  let map = mainField.unmapPoint(x, y);
+  mainField.addChild(new Point(map.x, map.y));
+  draw();
+}
+
+function moveLastPoint(x, y) {
+  mainField.removeLastChild();
+  addPoint(x, y);
+}
+
+let pMouseClick = {
+  x : -1,
+  y : -1,
+  time : -1,
+  released : -1
+};
+
+function mouseReleased() {
+  setMouseUpMemory();
+}
+
+function mouseMoved() {
+  switch (mouseActionMode()) {
+    case ANALYZE :
+      hoverAnalysis(mouseX, mouseY);
   }
+}
 
-  mouseActionMode() {
-    switch (userActionMode) {
-      default :
-        return userActionMode;
-    }
+function mouseDragged() {
+  switch (mouseActionMode()) {
+    case DRAG_CANVAS :
+      dragCanvas();
+      break;
+    case ADD_POINT :
+      moveLastPoint(mouseX, mouseY);
+      break;
   }
+}
 
-  userInputMode() {
-    switch (userActionMode) {
-      default:
-        return userActionMode;
-    }
-  }
-
-  let analyzedElement;
-  hoverAnalysis(x, y) {
-    let newElement = mainField.findGraphElement(x, y);
-    console.log('OLD');
-    console.log(analyzedElement);
-    console.log('NEW');
-    console.log(newElement);
-    if (newElement == analyzedElement)
-      return;
-
-    analyzedElement = newElement;
+function dragCanvas() {
+  if (isValidMouseDraggedCoords()) {
+    mainField.translateBy(mouseX - pMouseClick.x, mouseY - pMouseClick.y);
     draw();
+  }
+  setMouseDownMemory();
+}
 
-    if (newElement) {
-      newElement.highlight();
-    }
+function isValidMouseDraggedCoords() {
+  return (!pMouseClick.released) && (pMouseClick.x !== mouseX || pMouseClick.y !== mouseY); 
+}
+
+function setMouseUpMemory() {
+  pMouseClick.released = millis();
+}
+
+function setMouseDownMemory() {
+  pMouseClick = {
+    x : mouseX,
+    y : mouseY,
+    time : millis(),
+    released : false
+  }
+}
+
+function mouseActionMode() {
+  switch (userActionMode) {
+    default :
+      return userActionMode;
+  }
+}
+
+function userInputMode() {
+  switch (userActionMode) {
+    default:
+      return userActionMode;
+  }
+}
+
+let analyzedElement;
+function hoverAnalysis(x, y) {
+  let newElement = mainField.findGraphElement(x, y);
+  console.log('OLD');
+  console.log(analyzedElement);
+  console.log('NEW');
+  console.log(newElement);
+  if (newElement == analyzedElement)
+    return;
+
+  analyzedElement = newElement;
+  draw();
+
+  if (newElement) {
+    newElement.highlight();
   }
 }
