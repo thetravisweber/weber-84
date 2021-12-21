@@ -9,6 +9,7 @@ function keyPressed(event) {
   const ADD_LINE_HOTKEY = 'l';
   const DRAG_CANVAS_HOTKEY = 'm';
   const ANALYZE_HOTKEY = 'a';
+  const FULLSCREEN_HOTKEY = 'f';
   const ROTATE_LEFT_HOTKEY = 'ArrowLeft';
   const ROTATE_RIGHT_HOTKEY = 'ArrowRight';
 
@@ -24,8 +25,10 @@ function keyPressed(event) {
       setUserActionMode(DRAG_CANVAS);
       break;
     case ANALYZE_HOTKEY :
-      alert('Go Back\nAnalyze Mode is Very Broken')
       setUserActionMode(ANALYZE);
+      break;
+    case FULLSCREEN_HOTKEY :
+      toggleFullscreen();
       break;
     case ROTATE_LEFT_HOTKEY:
       mainField.rotate(PI/36);
@@ -35,10 +38,43 @@ function keyPressed(event) {
       mainField.rotate(-PI/36);
       draw();
       break;
-    default :
-      console.log(keyCode);
   }
 
+}
+
+let windowIsFullscreen = false;
+function toggleFullscreen() {
+  if (windowIsFullscreen) {
+    closeFullscreen();
+  } else {
+    openFullscreen();
+  }
+
+}
+  
+/* View in fullscreen */
+function openFullscreen() {
+  windowIsFullscreen = true;
+  let elem = document.documentElement;
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) { /* Safari */
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) { /* IE11 */
+    elem.msRequestFullscreen();
+  }
+}
+
+/* Close fullscreen */
+function closeFullscreen() {
+  windowIsFullscreen = false;
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.webkitExitFullscreen) { /* Safari */
+    document.webkitExitFullscreen();
+  } else if (document.msExitFullscreen) { /* IE11 */
+    document.msExitFullscreen();
+  }
 }
 
 function setUserActionMode(mode) {
@@ -46,6 +82,7 @@ function setUserActionMode(mode) {
 }
 
 function mousePressed() {
+
   switch (mouseActionMode()) {
     case DRAG_CANVAS :
       break;
@@ -88,14 +125,19 @@ function resetLineStart() {
 }
 
 function addPoint(x, y) {
-  let map = mainField.unmapPoint(x, y);
-  mainField.addChild(new Point(map.x, map.y));
+  let unmapped = mainField.unmapPoint(x, y);
+  mainField.addChild(new Point(unmapped.x, unmapped.y));
   draw();
 }
 
-function moveLastPoint(x, y) {
-  mainField.removeLastChild();
-  addPoint(x, y);
+function dragPoint() {
+  
+  if (analyzedElement && analyzedElement.type == POINT) {
+    let unmapped = mainField.unmapPoint(mouseX, mouseY);
+    analyzedElement.x = unmapped.x;
+    analyzedElement.y = unmapped.y;
+    draw();
+  }
 }
 
 let pMouseClick = {
@@ -114,7 +156,16 @@ function mouseMoved() {
     case ANALYZE :
       hoverAnalysis(mouseX, mouseY);
   }
+  pMouse = {
+    x : mouseX,
+    y : mouseY
+  };
 }
+
+let pMouse = {
+  x : -1,
+  y : -1
+};
 
 function mouseDragged() {
   switch (mouseActionMode()) {
@@ -122,7 +173,10 @@ function mouseDragged() {
       dragCanvas();
       break;
     case ADD_POINT :
-      moveLastPoint(mouseX, mouseY);
+      dragPoint();
+      break;
+    case ANALYZE :
+      dragElement();
       break;
   }
 }
@@ -169,17 +223,47 @@ function userInputMode() {
 let analyzedElement;
 function hoverAnalysis(x, y) {
   let newElement = mainField.findGraphElement(x, y);
-  console.log('OLD');
-  console.log(analyzedElement);
-  console.log('NEW');
-  console.log(newElement);
   if (newElement == analyzedElement)
     return;
-
   analyzedElement = newElement;
-  draw();
 
-  if (newElement) {
+  draw();
+  if (analyzedElement) {
     newElement.highlight();
+  }
+}
+
+function dragElement() {
+  switch (analyzedElement.type) {
+    case POINT :
+      dragPoint();
+      break;
+    case LINE :
+      dragLine();
+      break;
+    case FUNCTION :
+      dragFunction();
+      break;
+  }
+}
+
+function dragLine() {
+  if (analyzedElement.type === LINE) {
+    return;
+  }
+}
+
+function dragFunction() {
+  if ((sq(mouseX - pMouse.x) + sq(mouseY - pMouse.y)) > 50)
+    return;
+
+  if (analyzedElement.type === FUNCTION) {
+    let unmappedMouse = mainField.unmapPoint(mouseX, mouseY);
+    let unmappedPMouse = mainField.unmapPoint(pMouse.x, pMouse.y);
+    let deltaX = unmappedMouse.x - unmappedPMouse.x;
+    let deltaY = unmappedMouse.y - unmappedPMouse.y;
+    analyzedElement.translate(deltaX, deltaY);
+
+    draw();
   }
 }

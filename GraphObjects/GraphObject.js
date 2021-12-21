@@ -8,7 +8,7 @@ class GraphObject {
   draw() {return false;}
 
   highlight() {
-    this.draw(color(80,80,255), 5);
+    this.draw(color(80,80,255), 8);
     this.draw();
   }
 }

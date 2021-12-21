@@ -11,4 +11,5 @@ class Point extends GraphObject {
     strokeWeight(weight);
     this._renderer.point(this.x, this.y);
   }
+
 }
