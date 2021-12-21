@@ -93,6 +93,7 @@ function mousePressed() {
       addPoint(mouseX, mouseY);
       break;
     case ANALYZE :
+      updateFocus();
       break;
   }
   setMouseDownMemory();
@@ -221,7 +222,10 @@ function userInputMode() {
 }
 
 let analyzedElement;
+let isFocusingOnAnalyzedElement = false;
 function hoverAnalysis(x, y) {
+  if (isFocusingOnAnalyzedElement)
+    return;
   let newElement = mainField.findGraphElement(x, y);
   if (newElement == analyzedElement)
     return;
@@ -265,5 +269,23 @@ function dragFunction() {
     analyzedElement.translate(deltaX, deltaY);
 
     draw();
+    analyzedElement.highlight();
   }
+}
+
+let popup
+function updateFocus() {
+  if (popup)
+    popup.removePopup();
+  analyzedElement = mainField.findGraphElement(mouseX, mouseY);
+  isFocusingOnAnalyzedElement = !!analyzedElement;
+  draw();
+  if (!analyzedElement)
+    return;
+  analyzedElement.highlight();
+  openAnalysisMenu(mouseX, mouseY, analyzedElement);
+}
+
+function openAnalysisMenu(x, y, analyzedElement) {
+  popup = new Popup(x, y, analyzedElement);
 }
