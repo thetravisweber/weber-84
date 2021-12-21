@@ -125,14 +125,19 @@ function resetLineStart() {
 }
 
 function addPoint(x, y) {
-  let map = mainField.unmapPoint(x, y);
-  mainField.addChild(new Point(map.x, map.y));
+  let unmapped = mainField.unmapPoint(x, y);
+  mainField.addChild(new Point(unmapped.x, unmapped.y));
   draw();
 }
 
-function moveLastPoint(x, y) {
-  mainField.removeLastChild();
-  addPoint(x, y);
+function dragPoint() {
+  
+  if (analyzedElement && analyzedElement.type == POINT) {
+    let unmapped = mainField.unmapPoint(mouseX, mouseY);
+    analyzedElement.x = unmapped.x;
+    analyzedElement.y = unmapped.y;
+    draw();
+  }
 }
 
 let pMouseClick = {
@@ -151,7 +156,16 @@ function mouseMoved() {
     case ANALYZE :
       hoverAnalysis(mouseX, mouseY);
   }
+  pMouse = {
+    x : mouseX,
+    y : mouseY
+  };
 }
+
+let pMouse = {
+  x : -1,
+  y : -1
+};
 
 function mouseDragged() {
   switch (mouseActionMode()) {
@@ -159,7 +173,10 @@ function mouseDragged() {
       dragCanvas();
       break;
     case ADD_POINT :
-      moveLastPoint(mouseX, mouseY);
+      dragPoint();
+      break;
+    case ANALYZE :
+      dragElement();
       break;
   }
 }
@@ -213,5 +230,40 @@ function hoverAnalysis(x, y) {
   draw();
   if (analyzedElement) {
     newElement.highlight();
+  }
+}
+
+function dragElement() {
+  switch (analyzedElement.type) {
+    case POINT :
+      dragPoint();
+      break;
+    case LINE :
+      dragLine();
+      break;
+    case FUNCTION :
+      dragFunction();
+      break;
+  }
+}
+
+function dragLine() {
+  if (analyzedElement.type === LINE) {
+    return;
+  }
+}
+
+function dragFunction() {
+  if ((sq(mouseX - pMouse.x) + sq(mouseY - pMouse.y)) > 50)
+    return;
+
+  if (analyzedElement.type === FUNCTION) {
+    let unmappedMouse = mainField.unmapPoint(mouseX, mouseY);
+    let unmappedPMouse = mainField.unmapPoint(pMouse.x, pMouse.y);
+    let deltaX = unmappedMouse.x - unmappedPMouse.x;
+    let deltaY = unmappedMouse.y - unmappedPMouse.y;
+    analyzedElement.translate(deltaX, deltaY);
+
+    draw();
   }
 }
