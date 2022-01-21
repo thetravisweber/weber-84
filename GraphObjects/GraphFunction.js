@@ -26,4 +26,23 @@ class GraphFunction extends GraphObject {
     this._func = x => initialFunc(x) + deltaY;
   }
 
+  static isGraphFunction(functionText) {
+    if (!functionText.includes('=')) {
+      return;
+    }
+    let rightSideTest = functionText.substring(functionText.indexOf('=') + 1);
+    rightSideTest = rightSideTest.replaceAll(' ', '');
+    return !!rightSideTest;
+  }
+
+  static getFunctionText(functionText) {
+    functionText = functionText.substring(functionText.indexOf('=') + 1);
+    return functionText;
+  }
+
+  static creatFunction(functionText) {
+    let func = x => new Function(['x'],functionText);
+    return func;
+  }
+
 }

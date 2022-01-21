@@ -4,15 +4,71 @@ function mouseWheel(event) {
   draw();
 }
 
+function createInputBox() {
+  let uibox = document.createElement('uibox');
+  let inputarea = document.createElement('inputarea');
+  let newInputBtn = document.createElement('button');
+  newInputBtn.innerText = 'New';
+  newInputBtn.onclick = addNewBlankInput;
+  newInputBtn.id = 'new-input-btn';
+  uibox.append(inputarea);
+  uibox.append(newInputBtn);
+  document.body.append(uibox);
+  addNewBlankInput();
+}
+
+function addNewBlankInput() {
+  document.getElementsByTagName('inputarea')[0].append(getNewBlankInput());
+}
+
+function getNewBlankInput() {
+  let inputbox = document.createElement('inputbox');
+  inputbox.id = createUid();
+  let inputEl = document.createElement('input');
+  inputEl.placeholder = 'new Line, Point, Function';
+  inputEl.addEventListener('input', controlGraphObjectCreation)
+  let deleteBtn = document.createElement('button');
+  deleteBtn.innerText = 'x';
+  deleteBtn.onclick = deleteInput;
+  inputbox.append(inputEl);
+  inputbox.append(deleteBtn);
+  return inputbox;
+}
+
+function controlGraphObjectCreation() {
+  console.log('IS ? ');
+  console.log(GraphFunction.isGraphFunction(this.value));
+  console.log('FUNC : ');
+  console.log(GraphFunction.getFunctionText(this.value));
+  if (GraphFunction.isGraphFunction(this.value)) {
+    return mainField.addChild(new GraphFunction(GraphFunction.creatFunction(GraphFunction.getFunctionText(this.value))));
+  }
+  // if (Point.isPoint(this.value)) {
+  //   return kids.push(new Point(Point.getPointText(this.value)));
+  // }
+  // if (Line.isLine(this.value)) {
+  //   return kids.push(new Line(Line.getLineText(this.value)));
+  // }
+}
+
+function deleteInput() {
+  console.log('NEED TO DELETE THIS ON GRAPH');
+  this.parentElement.remove();
+}
+
+function createUid() {
+  return Math.floor( Math.random() * Number.MAX_SAFE_INTEGER );
+}
+
 function keyPressed(event) {
   const ADD_POINT_HOTKEY = 'p';
   const ADD_LINE_HOTKEY = 'l';
   const DRAG_CANVAS_HOTKEY = 'm';
   const ANALYZE_HOTKEY = 'a';
   const FULLSCREEN_HOTKEY = 'f';
+  const ESCAPE_HOTKEY = 'Escape';
   const ROTATE_LEFT_HOTKEY = 'ArrowLeft';
   const ROTATE_RIGHT_HOTKEY = 'ArrowRight';
-
 
   switch (event.key) {
     case ADD_POINT_HOTKEY :
@@ -30,6 +86,9 @@ function keyPressed(event) {
     case FULLSCREEN_HOTKEY :
       toggleFullscreen();
       break;
+    case ESCAPE_HOTKEY : 
+      closeFullscreen();
+      break;
     case ROTATE_LEFT_HOTKEY:
       mainField.rotate(PI/36);
       draw();
@@ -44,6 +103,9 @@ function keyPressed(event) {
 
 let windowIsFullscreen = false;
 function toggleFullscreen() {
+  if (isInput()) {
+    return;
+  }
   if (windowIsFullscreen) {
     closeFullscreen();
   } else {
@@ -74,6 +136,15 @@ function closeFullscreen() {
     document.webkitExitFullscreen();
   } else if (document.msExitFullscreen) { /* IE11 */
     document.msExitFullscreen();
+  }
+}
+
+function isInput() {
+  let inputs = [...document.getElementsByTagName('input')];
+  for (let i = 0; i < inputs.length; i++) {
+    if (inputs[i] === document.activeElement) {
+      return true;
+    }
   }
 }
 

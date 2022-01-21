@@ -1,3 +1,11 @@
+:root {
+    --cool-green: #00ff00;
+}
+
+button {
+    cursor: pointer;
+}
+
 popup {
     background-color : #ccc;
     color : #333;
@@ -18,4 +26,44 @@ popup popuptitle {
 popup popupbody {
     font-size : medium;
     border-bottom: #333 2px;
+}
+
+uibox {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-family: Helvetica;
+    color: var(--cool-green);
+    background-color: black;
+}
+
+inputbox {
+    display: block;
+    background-color: transparent;
+}
+
+inputbox * {
+    display: inline-block;
+    color: inherit;
+    background-color: transparent;
+}
+
+inputbox button {
+    padding: 0;
+    border: none;
+    font-size: 24px;
+}
+
+inputbox input {
+    outline: none;
+    border: var(--cool-green) 2px solid;
+    border-radius: 3px;
+    font-size: 18px;
+}
+
+#new-input-btn {
+    border: var(--cool-green) 2px solid;
+    border-radius: 3px;
+    background-color: black;
+    color : var(--cool-green);
 }
