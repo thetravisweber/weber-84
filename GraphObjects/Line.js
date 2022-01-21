@@ -51,4 +51,46 @@ class Line extends GraphObject {
     return max(this.y1, this.y2);
   }
 
+  static isLine(lineText) {
+    const centerMarker = '=>';
+    if (!lineText.includes(centerMarker)) {
+      return;
+    }
+    let centerIndex = lineText.indexOf(centerMarker);
+
+    let p1Text = lineText.substring(0, centerIndex);
+    let p2Text = lineText.substring(centerIndex + centerMarker.length);
+    if (!Point.isPoint(p1Text) || !Point.isPoint(p2Text)) {
+      return;
+    }
+    let p1 = Point.getPointVector(p1Text);
+    let p2 = Point.getPointVector(p2Text);
+    // value for each coord
+    let test = /[\d]/.test(p1.x) && /[\d]/.test(p1.y);
+    test = test && /[\d]/.test(p2.x) && /[\d]/.test(p2.y);
+    return test;
+  }
+
+  static getLine(lineText) {
+    const centerMarker = '=>';
+    let centerIndex = lineText.indexOf(centerMarker);
+    let p1 = Point.getPointVector(lineText.substring(0, centerIndex));
+    let p2 = Point.getPointVector(lineText.substring(centerIndex + centerMarker.length));
+    return new Line(p1.x, p1.y, p2.x, p2.y);
+  }
+
+  toString() {
+    return `(${roundTwo(this.x1)}, ${roundTwo(this.y1)}) => (${roundTwo(this.x2)}, ${roundTwo(this.y2)})`;
+    function roundTwo(num) {
+      return Math.round(num * 100) / 100;
+    }
+  }
+
+  toSlopeInterceptString() {
+    return `y = ${roundTwo(this.slope())}x + ${roundTwo(this.yIntercept())}`;
+    function roundTwo(num) {
+      return Math.round(num * 100) / 100;
+    }
+  }
+
 }

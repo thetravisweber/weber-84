@@ -27,8 +27,28 @@ class Field { // AKA 2-space or 2D space
     children.forEach(child => this.addChild(child));
   }
 
+  getChildByUid(uid) {
+    for (let i = 0; i < this.#children.length; i++) {
+      if (this.#children[i].getUid() == uid) {
+        return this.#children[i];
+      }
+    }
+  }
+
+  removeChildByUid(uid) {
+    for (let i = 0; i < this.#children.length; i++) {
+      if (this.#children[i].getUid() == uid) {
+        this.#children.splice(i, 1);
+      }
+    }
+  }
+
   getChild(childIndex) {
     return this.#children[childIndex];
+  }
+
+  getChildren() {
+    return this.#children;
   }
 
   clearChildren() {

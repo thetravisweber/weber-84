@@ -4,15 +4,106 @@ function mouseWheel(event) {
   draw();
 }
 
+function createInputBox() {
+  let uibox = document.createElement('uibox');
+  let inputarea = document.createElement('inputarea');
+  let newInputBtn = document.createElement('button');
+  newInputBtn.innerText = 'New';
+  newInputBtn.onclick = addNewBlankInput;
+  newInputBtn.id = 'new-input-btn';
+  uibox.append(inputarea);
+  uibox.append(newInputBtn);
+  document.body.append(uibox);
+  addInputsForExistingGraphObjects();
+  addNewBlankInput();
+}
+
+// add inputs for starting graph objects
+function addInputsForExistingGraphObjects() {
+  mainField.getChildren().forEach(child => {
+    addInputForExisting(child.toString(), child.getUid());
+  })
+}
+
+function addInputForExisting(text, uid) {
+  let inputbox = getNewBlankInput();
+  inputbox.setAttribute('el-uid', uid);
+  inputbox.getElementsByTagName('input')[0].value = text;
+  document.getElementsByTagName('inputarea')[0].append(inputbox);
+}
+
+function addNewBlankInput() {
+  document.getElementsByTagName('inputarea')[0].append(getNewBlankInput());
+}
+
+function getNewBlankInput() {
+  let inputbox = document.createElement('inputbox');
+  inputbox.id = createUid();
+  let inputEl = document.createElement('input');
+  inputEl.placeholder = 'new Line, Point, Function';
+  inputEl.oninput = controlGraphObjectCreation;
+  let deleteBtn = document.createElement('button');
+  deleteBtn.innerText = '×';
+  deleteBtn.onclick = deleteInput;
+  inputbox.append(inputEl);
+  inputbox.append(deleteBtn);
+  return inputbox;
+}
+
+function controlGraphObjectCreation() {
+  if (this.parentElement.getAttribute('el-uid')) {
+    mainField.removeChildByUid(this.parentElement.getAttribute('el-uid'));
+  }
+  this.setAttribute('el-uid', '');
+  if (Line.isLine(this.value)) {
+    let line = Line.getLine(this.value);
+    mainField.addChild(line);
+    this.parentElement.setAttribute('el-uid', line.getUid());
+    return draw();  
+  }
+  if (GraphFunction.isGraphFunction(this.value)) {
+    let functionText = GraphFunction.getFunctionText(this.value);
+    let func = GraphFunction.createFunction(functionText);
+    let graphFunction = new GraphFunction(func);
+    mainField.addChild(graphFunction);
+    this.parentElement.setAttribute('el-uid', graphFunction.getUid());
+    return draw();
+  }
+  if (Point.isPoint(this.value)) {
+    let point = Point.getPointVector(this.value);
+    let graphPoint = new Point(point.x, point.y);
+    mainField.addChild(graphPoint);
+    this.parentElement.setAttribute('el-uid', graphPoint.getUid());
+    return draw();
+  }
+  draw();
+}
+
+function deleteInput() {
+  // delete graph object
+  let uid = this.parentElement.getAttribute('el-uid');
+  mainField.removeChildByUid(uid);
+  draw();
+  // delete input element
+  this.parentElement.remove();
+}
+
+function createUid() {
+  return Math.floor( Math.random() * Number.MAX_SAFE_INTEGER );
+}
+
 function keyPressed(event) {
+  if (isInput()) {
+    return;
+  }
   const ADD_POINT_HOTKEY = 'p';
   const ADD_LINE_HOTKEY = 'l';
   const DRAG_CANVAS_HOTKEY = 'm';
   const ANALYZE_HOTKEY = 'a';
   const FULLSCREEN_HOTKEY = 'f';
+  const ESCAPE_HOTKEY = 'Escape';
   const ROTATE_LEFT_HOTKEY = 'ArrowLeft';
   const ROTATE_RIGHT_HOTKEY = 'ArrowRight';
-
 
   switch (event.key) {
     case ADD_POINT_HOTKEY :
@@ -29,6 +120,9 @@ function keyPressed(event) {
       break;
     case FULLSCREEN_HOTKEY :
       toggleFullscreen();
+      break;
+    case ESCAPE_HOTKEY : 
+      closeFullscreen();
       break;
     case ROTATE_LEFT_HOTKEY:
       mainField.rotate(PI/36);
@@ -74,6 +168,15 @@ function closeFullscreen() {
     document.webkitExitFullscreen();
   } else if (document.msExitFullscreen) { /* IE11 */
     document.msExitFullscreen();
+  }
+}
+
+function isInput() {
+  let inputs = [...document.getElementsByTagName('input')];
+  for (let i = 0; i < inputs.length; i++) {
+    if (inputs[i] === document.activeElement) {
+      return true;
+    }
   }
 }
 
@@ -238,6 +341,9 @@ function hoverAnalysis(x, y) {
 }
 
 function dragElement() {
+  if (!analyzedElement) {
+    return;
+  }
   switch (analyzedElement.type) {
     case POINT :
       dragPoint();

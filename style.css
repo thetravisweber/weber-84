@@ -1,3 +1,12 @@
+:root {
+    --cool-green: #00ff00;
+    --ui-box-shadow: rgba(0,0,0,0.8);
+}
+
+button {
+    cursor: pointer;
+}
+
 popup {
     background-color : #ccc;
     color : #333;
@@ -18,4 +27,53 @@ popup popuptitle {
 popup popupbody {
     font-size : medium;
     border-bottom: #333 2px;
+}
+
+uibox {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-family: Helvetica;
+    color: var(--cool-green);
+    background-color: transparent;
+}
+
+uibox * {
+    margin: 2px;
+}
+
+inputbox {
+    display: block;
+}
+
+inputbox * {
+    display: inline-block;
+    color: inherit;
+    background-color: inherit;
+}
+
+inputbox button {
+    padding: 0;
+    border: none;
+    font-size: 24px;
+    transition: transform 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955)
+}
+
+inputbox button:hover {
+    transform: rotate(270deg);
+}
+
+inputbox input {
+    outline: none;
+    border: var(--cool-green) 2px solid;
+    border-radius: 3px;
+    font-size: 18px;
+    background-color: var(--ui-box-shadow);
+}
+
+#new-input-btn {
+    border: var(--cool-green) 2px solid;
+    border-radius: 3px;
+    background-color: var(--ui-box-shadow);
+    color : var(--cool-green);
 }

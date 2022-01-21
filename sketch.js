@@ -15,11 +15,13 @@ function setup() {
   rectMode(CENTER);
 
   let kids = [
-    new GraphFunction((x => x*x + 4)),
-    new Line(4, 5, 8, 7),
-    new Point(4, 6)
+    new Line(-1, 2.5, 2, 7),
+    new GraphFunction(x => x**2-1)
   ];
   mainField.setChildren(kids);
+  
+  // UI
+  createInputBox();
 }
 
 function draw() {
