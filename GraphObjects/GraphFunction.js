@@ -30,9 +30,12 @@ class GraphFunction extends GraphObject {
     if (!functionText.includes('=')) {
       return;
     }
-    let rightSideTest = functionText.substring(functionText.indexOf('=') + 1);
-    rightSideTest = rightSideTest.replaceAll(' ', '');
-    return !!rightSideTest;
+    let rightSide = functionText.substring(functionText.indexOf('=') + 1);
+    // right side contains x or number
+    let rightSideTest = /[x\d]/.test(rightSide);
+    // right side does not contain any other letters
+    rightSideTest = rightSideTest && !/[A-Za-wy-z]/.test(rightSide);
+    return rightSideTest;
   }
 
   static getFunctionText(functionText) {
@@ -41,7 +44,7 @@ class GraphFunction extends GraphObject {
   }
 
   static creatFunction(functionText) {
-    let func = x => new Function(['x'],functionText);
+    let func = new Function('x', `return ${functionText};`);
     return func;
   }
 

@@ -15,6 +15,12 @@ function createInputBox() {
   uibox.append(newInputBtn);
   document.body.append(uibox);
   addNewBlankInput();
+  addInputsForExistingGraphObjects();
+}
+
+// add inputs for starting graph objects
+function addInputsForExistingGraphObjects() {
+
 }
 
 function addNewBlankInput() {
@@ -36,12 +42,17 @@ function getNewBlankInput() {
 }
 
 function controlGraphObjectCreation() {
-  console.log('IS ? ');
-  console.log(GraphFunction.isGraphFunction(this.value));
-  console.log('FUNC : ');
-  console.log(GraphFunction.getFunctionText(this.value));
+  if (this.getAttribute('el-uid')) {
+    mainField.removeChildByUid(this.getAttribute('el-uid'));
+  }
+  this.setAttribute('el-uid', '');
   if (GraphFunction.isGraphFunction(this.value)) {
-    return mainField.addChild(new GraphFunction(GraphFunction.creatFunction(GraphFunction.getFunctionText(this.value))));
+    let functionText = GraphFunction.getFunctionText(this.value);
+    let func = GraphFunction.creatFunction(functionText);
+    let graphFunction = new GraphFunction(func);
+    mainField.addChild(graphFunction);
+    this.setAttribute('el-uid', graphFunction.getUid());
+    return draw();
   }
   // if (Point.isPoint(this.value)) {
   //   return kids.push(new Point(Point.getPointText(this.value)));

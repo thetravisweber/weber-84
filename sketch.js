@@ -15,7 +15,7 @@ function setup() {
   rectMode(CENTER);
 
   let kids = [
-    
+    new GraphFunction((x => {return x;}))
   ];
   mainField.setChildren(kids);
   
