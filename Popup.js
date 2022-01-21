@@ -13,14 +13,19 @@ class Popup {
         this.type = analyzedElement.type;
         switch (this.type) {
             case FUNCTION :
-                this.setTitle(this.functionText(analyzedElement._func.toString()));
+                this.setTitle(analyzedElement.toString());
+
+                // this.setTitle(this.functionText(analyzedElement._func.toString()));
                 break;
             case POINT :
-                this.setTitle(`(${analyzedElement.x}, ${analyzedElement.y})`);
+                this.setTitle(analyzedElement.toString());
+                // this.setTitle(`(${analyzedElement.x}, ${analyzedElement.y})`);
                 break;
             case LINE :
-                this.setTitle(`(${analyzedElement.x1}, ${analyzedElement.y1}) => (${analyzedElement.x2}, ${analyzedElement.y2})`);
-                this.addToBody(`y = ${analyzedElement.slope()}x + ${analyzedElement.yIntercept()}`);
+                this.setTitle(analyzedElement.toString());
+                // this.setTitle(`(${analyzedElement.x1}, ${analyzedElement.y1}) => (${analyzedElement.x2}, ${analyzedElement.y2})`);
+                this.addToBody(analyzedElement.toSlopeInterceptString());
+                // this.addToBody(`y = ${analyzedElement.slope()}x + ${analyzedElement.yIntercept()}`);
         }
     }
 

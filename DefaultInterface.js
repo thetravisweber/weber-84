@@ -14,13 +14,22 @@ function createInputBox() {
   uibox.append(inputarea);
   uibox.append(newInputBtn);
   document.body.append(uibox);
-  addNewBlankInput();
   addInputsForExistingGraphObjects();
+  addNewBlankInput();
 }
 
 // add inputs for starting graph objects
 function addInputsForExistingGraphObjects() {
+  mainField.getChildren().forEach(child => {
+    addInputForExisting(child.toString(), child.getUid());
+  })
+}
 
+function addInputForExisting(text, uid) {
+  let inputbox = getNewBlankInput();
+  inputbox.setAttribute('el-uid', uid);
+  inputbox.getElementsByTagName('input')[0].value = text;
+  document.getElementsByTagName('inputarea')[0].append(inputbox);
 }
 
 function addNewBlankInput() {
@@ -32,9 +41,9 @@ function getNewBlankInput() {
   inputbox.id = createUid();
   let inputEl = document.createElement('input');
   inputEl.placeholder = 'new Line, Point, Function';
-  inputEl.addEventListener('input', controlGraphObjectCreation)
+  inputEl.oninput = controlGraphObjectCreation;
   let deleteBtn = document.createElement('button');
-  deleteBtn.innerText = 'x';
+  deleteBtn.innerText = '×';
   deleteBtn.onclick = deleteInput;
   inputbox.append(inputEl);
   inputbox.append(deleteBtn);
@@ -42,28 +51,40 @@ function getNewBlankInput() {
 }
 
 function controlGraphObjectCreation() {
-  if (this.getAttribute('el-uid')) {
-    mainField.removeChildByUid(this.getAttribute('el-uid'));
+  if (this.parentElement.getAttribute('el-uid')) {
+    mainField.removeChildByUid(this.parentElement.getAttribute('el-uid'));
   }
   this.setAttribute('el-uid', '');
+  if (Line.isLine(this.value)) {
+    let line = Line.getLine(this.value);
+    mainField.addChild(line);
+    this.parentElement.setAttribute('el-uid', line.getUid());
+    return draw();  
+  }
   if (GraphFunction.isGraphFunction(this.value)) {
     let functionText = GraphFunction.getFunctionText(this.value);
-    let func = GraphFunction.creatFunction(functionText);
+    let func = GraphFunction.createFunction(functionText);
     let graphFunction = new GraphFunction(func);
     mainField.addChild(graphFunction);
-    this.setAttribute('el-uid', graphFunction.getUid());
+    this.parentElement.setAttribute('el-uid', graphFunction.getUid());
     return draw();
   }
-  // if (Point.isPoint(this.value)) {
-  //   return kids.push(new Point(Point.getPointText(this.value)));
-  // }
-  // if (Line.isLine(this.value)) {
-  //   return kids.push(new Line(Line.getLineText(this.value)));
-  // }
+  if (Point.isPoint(this.value)) {
+    let point = Point.getPointVector(this.value);
+    let graphPoint = new Point(point.x, point.y);
+    mainField.addChild(graphPoint);
+    this.parentElement.setAttribute('el-uid', graphPoint.getUid());
+    return draw();
+  }
+  draw();
 }
 
 function deleteInput() {
-  console.log('NEED TO DELETE THIS ON GRAPH');
+  // delete graph object
+  let uid = this.parentElement.getAttribute('el-uid');
+  mainField.removeChildByUid(uid);
+  draw();
+  // delete input element
   this.parentElement.remove();
 }
 
@@ -72,6 +93,9 @@ function createUid() {
 }
 
 function keyPressed(event) {
+  if (isInput()) {
+    return;
+  }
   const ADD_POINT_HOTKEY = 'p';
   const ADD_LINE_HOTKEY = 'l';
   const DRAG_CANVAS_HOTKEY = 'm';
@@ -114,9 +138,6 @@ function keyPressed(event) {
 
 let windowIsFullscreen = false;
 function toggleFullscreen() {
-  if (isInput()) {
-    return;
-  }
   if (windowIsFullscreen) {
     closeFullscreen();
   } else {
@@ -320,6 +341,9 @@ function hoverAnalysis(x, y) {
 }
 
 function dragElement() {
+  if (!analyzedElement) {
+    return;
+  }
   switch (analyzedElement.type) {
     case POINT :
       dragPoint();
