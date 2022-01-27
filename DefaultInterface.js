@@ -61,6 +61,12 @@ function controlGraphObjectCreation() {
     this.parentElement.setAttribute('el-uid', line.getUid());
     return draw();  
   }
+  if (Vector.isVector(this.value)) {
+    let vector = Vector.getVector(this.value);
+    mainField.addChild(vector);
+    this.parentElement.setAttribute('el-uid', vector.getUid());
+    return draw();
+  }
   if (GraphFunction.isGraphFunction(this.value)) {
     let functionText = GraphFunction.getFunctionText(this.value);
     let func = GraphFunction.createFunction(functionText);
