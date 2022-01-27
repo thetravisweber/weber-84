@@ -15,10 +15,8 @@ function setup() {
   rectMode(CENTER);
 
   let kids = [
-    new Vector(4, 5),
-    new Vector(1, 2),
-    new Vector(2, 2),
-    new Vector(0, 7)
+    new ScaledVector(4, 5),
+    new ScaledVector(1, 2)
   ];
   mainField.setChildren(kids);
   
