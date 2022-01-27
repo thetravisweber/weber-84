@@ -212,14 +212,14 @@ class Field { // AKA 2-space or 2D space
    */
 
   zoom(scale) {
-    this.xWindow = AxialWindow.from(
+    this.setXWindow(
       {
         start: this.xWindow.start + scale*this.xWindow.step, 
         end: this.xWindow.end - scale*this.xWindow.step,
         step: this.xWindow.step
       }
     );
-    this.yWindow = AxialWindow.from(
+    this.setYWindow(
       {
         start: this.yWindow.start + scale*this.yWindow.step, 
         end: this.yWindow.end - scale*this.yWindow.step, 
@@ -234,6 +234,7 @@ class Field { // AKA 2-space or 2D space
     this.position = createVector(x, y);
 
     let translateOffset = this.windowTranslation(x, y);
+
     this.setXWindow({
       start : translateOffset.x - this.windowWidth() * 0.5,
       end : translateOffset.x + this.windowWidth() * 0.5,
@@ -244,6 +245,7 @@ class Field { // AKA 2-space or 2D space
       end : translateOffset.y + this.windowHeight() * 0.5,
       step : this.yWindow.step
     });
+
   }
 
   rotate(theta) {
@@ -291,10 +293,10 @@ class Field { // AKA 2-space or 2D space
    * Setters
    */
   setXWindow(window) {
-    this.xWindow = window;
+    this.xWindow = AxialWindow.from(window);
   }
 
   setYWindow(window) {
-    this.yWindow = window;
+    this.yWindow = AxialWindow.from(window);
   }
 }

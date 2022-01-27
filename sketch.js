@@ -15,8 +15,8 @@ function setup() {
   rectMode(CENTER);
 
   let kids = [
-    new ScaledVector(4, 5),
-    new ScaledVector(1, 2)
+    new Vector(4, 5),
+    new Vector(1, 2)
   ];
   mainField.setChildren(kids);
   
@@ -30,6 +30,7 @@ function draw() {
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  resizeCanvas(windowWidth*0.99, windowHeight*0.99);
   mainField.reset();
+  draw();
 }
