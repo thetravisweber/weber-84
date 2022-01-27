@@ -16,7 +16,12 @@ function setup() {
 
   let kids = [
     new Line(-1, 2.5, 2, 7),
-    new GraphFunction(x => x**2-1)
+    new GraphFunction(x => x**2-1),
+    new Polygon([
+      createVector(-1, 0),
+      createVector(0,1),
+      createVector(1, 0)
+    ])
   ];
   mainField.setChildren(kids);
   

@@ -15,6 +15,17 @@ class TwoSpaceRenderEngine {
     point(pos.x,pos.y)
   }
 
+  shape(points) {
+    points.forEach((point, index) => {
+      let nextIndex = index+1;
+      if (nextIndex == points.length) {
+        nextIndex = 0;
+      }
+      let nextPoint = points[nextIndex];
+      this.line(point.x, point.y, nextPoint.x, nextPoint.y);
+    });
+  }
+
   graph(func) {
     noFill();
     beginShape();
