@@ -159,6 +159,7 @@ function keyPressed(event) {
   }
   const ADD_POINT_HOTKEY = 'p';
   const ADD_LINE_HOTKEY = 'l';
+  const ADD_VECTOR_HOTKEY = 'v';
   const DRAG_CANVAS_HOTKEY = 'm';
   const ANALYZE_HOTKEY = 'a';
   const FULLSCREEN_HOTKEY = 'f';
@@ -172,6 +173,9 @@ function keyPressed(event) {
       break;
     case ADD_LINE_HOTKEY :
       setUserActionMode(ADD_LINE);
+      break;
+    case ADD_VECTOR_HOTKEY :
+      setUserActionMode(ADD_VECTOR);
       break;
     case DRAG_CANVAS_HOTKEY :
       setUserActionMode(DRAG_CANVAS);
@@ -253,6 +257,9 @@ function mousePressed() {
     case ADD_LINE :
       registerMousePressForNewLine();
       break;
+    case ADD_VECTOR :
+      registerMousePressForNewVector();
+      break;
     case ADD_POINT :
       addPoint(mouseX, mouseY);
       break;
@@ -263,6 +270,7 @@ function mousePressed() {
   setMouseDownMemory();
 }
 
+// line
 let lineStart;
 resetLineStart();
 
@@ -288,6 +296,34 @@ function startLine() {
 function resetLineStart() {
   lineStart = false;
 }
+
+// vector
+let vectorStart;
+resetVectorStart();
+
+function registerMousePressForNewVector() {
+  if (!vectorStart)
+    return startVector();
+  
+  let head = mainField.unmapPoint(mouseX, mouseY);
+  let tail = mainField.unmapPoint(vectorStart.x, vectorStart.y);
+  mainField.addChild(new Vector(head.x - tail.x, head.y - tail.y, tail.x, tail.y));
+  draw();
+
+  resetVectorStart();
+}
+
+function startVector() {
+  vectorStart = {
+    x : mouseX,
+    y : mouseY
+  }
+}
+
+function resetVectorStart() {
+  vectorStart = false;
+}
+
 
 function addPoint(x, y) {
   let unmapped = mainField.unmapPoint(x, y);
