@@ -32,8 +32,13 @@ function addInputForExisting(text, uid) {
   document.getElementsByTagName('inputarea')[0].append(inputbox);
 }
 
-function addNewBlankInput() {
-  document.getElementsByTagName('inputarea')[0].append(getNewBlankInput());
+function addNewBlankInput(e) {
+  let input = getNewBlankInput();
+  document.getElementsByTagName('inputarea')[0].append(input);
+  if (e) {
+    let inputs = getInputs();
+    inputs[inputs.length - 1].focus();
+  }
 }
 
 function getNewBlankInput() {
@@ -48,6 +53,10 @@ function getNewBlankInput() {
   inputbox.append(inputEl);
   inputbox.append(deleteBtn);
   return inputbox;
+}
+
+function getInputs() {
+  return [...document.getElementsByTagName('input')];
 }
 
 function controlGraphObjectCreation() {
@@ -98,9 +107,55 @@ function createUid() {
   return Math.floor( Math.random() * Number.MAX_SAFE_INTEGER );
 }
 
+function controlInput(e) {
+  switch (e.key) {
+    case 'Tab' :
+      e.preventDefault();
+      if (keyIsDown(SHIFT)) {
+        focusOnLastInput();
+      } else {
+        focusOnNextInput();
+      }
+      break;
+    case 'Enter' :
+      document.getElementById('new-input-btn').click();
+      break;
+    case 'Backspace' :
+      let activeInput = document.activeElement;
+      if (!activeInput.value) {
+        e.preventDefault();
+        focusOnLastInput();
+        activeInput.parentElement.remove();
+      }
+      break;
+  }
+}
+
+
+function focusOnNextInput() {
+  let inputs = getInputs();
+  for (let i = 0; i < inputs.length; i++) {
+    if (inputs[i] === document.activeElement) {
+      if (i < inputs.length - 1) {
+        return inputs[i+1].focus();
+      }
+      return document.getElementById('new-input-btn').focus();
+    }
+  }
+}
+
+function focusOnLastInput() {
+  let inputs = getInputs();
+  for (let i = 1; i < inputs.length; i++) {
+    if (inputs[i] === document.activeElement) {
+      return inputs[i-1].focus();
+    }
+  }
+}
+
 function keyPressed(event) {
   if (isInput()) {
-    return;
+    return controlInput(event);
   }
   const ADD_POINT_HOTKEY = 'p';
   const ADD_LINE_HOTKEY = 'l';
@@ -178,7 +233,7 @@ function closeFullscreen() {
 }
 
 function isInput() {
-  let inputs = [...document.getElementsByTagName('input')];
+  let inputs = getInputs();
   for (let i = 0; i < inputs.length; i++) {
     if (inputs[i] === document.activeElement) {
       return true;
@@ -278,6 +333,9 @@ let pMouse = {
 };
 
 function mouseDragged() {
+  if (isInput()) {
+    return;
+  }
   switch (mouseActionMode()) {
     case DRAG_CANVAS :
       dragCanvas();
