@@ -16,14 +16,14 @@ class TwoSpaceRenderEngine {
   }
 
   shape(points) {
-    points.forEach((point, index) => {
-      let nextIndex = index+1;
-      if (nextIndex == points.length) {
-        nextIndex = 0;
-      }
-      let nextPoint = points[nextIndex];
-      this.line(point.x, point.y, nextPoint.x, nextPoint.y);
+    beginShape();
+    points.forEach(point => {
+      let mapped = this.field.mapPoint(point.x, point.y);
+      vertex(mapped.x, mapped.y);
     });
+    endShape();
+    let max = points.length-1;
+    this.line(points[0].x, points[0].y, points[max].x, points[max].y);
   }
 
   graph(func) {

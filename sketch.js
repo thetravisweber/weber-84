@@ -15,13 +15,10 @@ function setup() {
   rectMode(CENTER);
 
   let kids = [
-    new Line(-1, 2.5, 2, 7),
-    new GraphFunction(x => x**2-1),
-    new Polygon([
-      createVector(-1, 0),
-      createVector(0,1),
-      createVector(1, 0)
-    ])
+    new Vector(4, 5),
+    new Vector(1, 2),
+    new Vector(2, 2),
+    new Vector(0, 7)
   ];
   mainField.setChildren(kids);
   
