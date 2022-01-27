@@ -15,6 +15,17 @@ class TwoSpaceRenderEngine {
     point(pos.x,pos.y)
   }
 
+  shape(points) {
+    beginShape();
+    points.forEach(point => {
+      let mapped = this.field.mapPoint(point.x, point.y);
+      vertex(mapped.x, mapped.y);
+    });
+    endShape();
+    let max = points.length-1;
+    this.line(points[0].x, points[0].y, points[max].x, points[max].y);
+  }
+
   graph(func) {
     noFill();
     beginShape();
