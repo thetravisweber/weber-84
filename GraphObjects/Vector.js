@@ -3,7 +3,7 @@ class Vector extends Line {
   static HEAD_RATIO = 12;
 
   constructor(xMagnitude, yMagnitude, xOffset=0, yOffset=0) {
-    super(xOffset, yOffset, xMagnitude, yMagnitude);
+    super(xOffset, yOffset, xOffset+xMagnitude, yOffset+yMagnitude);
   }
 
   draw(color=PRIMARY, weight=WEIGHT) {
