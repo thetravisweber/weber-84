@@ -11,6 +11,26 @@ class GraphFunction extends GraphObject {
     this._renderer.graph(this._func);
   }
 
+  derivative(x) {
+    // unsure of dx
+    // too small causes errors, too big causes inaccuracies,
+    // maybe make dx dynamic based on factors like the size of x and f(x)
+    let dx = 10**-12;
+    let x2 = x + dx;
+
+    let y = this._func(x);
+    let y2 = this._func(x2);
+
+    let dy = y2 - y;
+    return dy / dx;
+  }
+
+  tangent(x) {
+    let m = this.derivative(x);
+    let y = this._func(x);
+    return new Vector(1/m, m, x, y);
+  }
+
   translate(deltaX, deltaY) {
     this.translateX(deltaX);
     this.translateY(deltaY);
