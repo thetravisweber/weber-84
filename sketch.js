@@ -15,14 +15,14 @@ function setup() {
   rectMode(CENTER);
 
   let kids = [
-    new Vector(2, 2),
-    new Vector(1, 2, 2, 2)
+    new GraphFunction(x => x**2)
   ];
   mainField.setChildren(kids);
   
   // UI
   createInputBox();
 }
+
 
 function draw() {
   background(BKG);

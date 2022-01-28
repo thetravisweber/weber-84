@@ -34,6 +34,14 @@ class Vector extends Line {
     return createVector(this.x1, this.y1);
   }
 
+  xMagnitude() {
+    return this.x2 - this.x1;
+  }
+
+  yMagnitude() {
+    return this.y2 - this.y1;
+  }
+
   static isVector(vectorText) {
     const startMarker = '<';
     const endMarker = '>';
@@ -89,6 +97,11 @@ class Vector extends Line {
 
   }
 
+  isUnitVector() {
+    let margin = 10**-14
+    return abs(this.magnitude() - 1) < margin;
+  }
+
   toString() {
     let str = `<${roundTwo(this.head().x)}, ${roundTwo(this.head().y)}>`;
     if (roundTwo(this.tail().x) && roundTwo(this.tail().y)) {
@@ -99,6 +112,11 @@ class Vector extends Line {
     function roundTwo(num) {
       return Math.round(num * 100) / 100;
     }
+  }
+
+  static multiplyScalar(vector, scalar) {
+    vector.x2 = vector.x1 + vector.xMagnitude() * scalar;
+    vector.y2 = vector.y1 + vector.yMagnitude() * scalar;
   }
 
 }

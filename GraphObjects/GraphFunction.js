@@ -16,6 +16,7 @@ class GraphFunction extends GraphObject {
     // too small causes errors, too big causes inaccuracies,
     // maybe make dx dynamic based on factors like the size of x and f(x)
     let dx = 10**-12;
+    dx = 32 / Number.MAX_SAFE_INTEGER;
     let x2 = x + dx;
 
     let y = this._func(x);
@@ -28,7 +29,26 @@ class GraphFunction extends GraphObject {
   tangent(x) {
     let m = this.derivative(x);
     let y = this._func(x);
-    return new Vector(1/m, m, x, y);
+    return new Vector(1, m, x, y);
+  }
+
+  unitTangent(x, scalar=2.5) {
+    let m = this.derivative(x);
+    let y = this._func(x);
+    let vec = new UnitVector(1, m, x, y);
+    Vector.multiplyScalar(vec, scalar);
+    return vec;
+  }
+
+  highlightTangent(x) {
+    let vec = this.unitTangent(x);
+    let pt = new Point(vec.tail().x, vec.tail().y);
+    mainField.addChild(vec);
+    mainField.addChild(pt);
+    vec.highlight();
+    pt.highlight();
+    mainField.removeLastChild();
+    mainField.removeLastChild();
   }
 
   translate(deltaX, deltaY) {
@@ -94,8 +114,6 @@ class GraphFunction extends GraphObject {
         i += substr.length;
       }
     }
-    console.log(functionText);
-
     return functionText;
   }
 

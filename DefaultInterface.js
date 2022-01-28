@@ -427,16 +427,21 @@ function userInputMode() {
 let analyzedElement;
 let isFocusingOnAnalyzedElement = false;
 function hoverAnalysis(x, y) {
-  if (isFocusingOnAnalyzedElement)
+  if (isFocusingOnAnalyzedElement) {
     return;
-  let newElement = mainField.findGraphElement(x, y);
-  if (newElement == analyzedElement)
-    return;
-  analyzedElement = newElement;
+  }
+  analyzedElement = mainField.findGraphElement(x, y);
 
   draw();
-  if (analyzedElement) {
-    newElement.highlight();
+  if (!analyzedElement) {
+    isFocusingOnAnalyzedElement = false;
+    return;
+  }
+
+  analyzedElement.highlight();
+  if (analyzedElement.type === FUNCTION) {
+    let p = mainField.unmapPoint(mouseX, 1);
+    analyzedElement.highlightTangent(p.x);
   }
 }
 
