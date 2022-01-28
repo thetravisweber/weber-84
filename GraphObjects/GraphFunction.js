@@ -83,13 +83,11 @@ class GraphFunction extends GraphObject {
 
     // if doesn't contain any digits or variables
     if (!/[\dA-Za-z()]/.test(functionText)) {
-      console.log('NOT FUNC BC NO DIG NO VAR');
       return;
     }
 
     // if the first or last character is an operator
     if (!/[\dA-Za-z()]/.test(functionText[0]) || !/[\dA-Za-z()]/.test(functionText[functionText.length - 1])) {
-      console.log('NOT FUNC BC FIRST OR LAST CHAR OPERATOR');
       return;
     }
 
@@ -100,9 +98,6 @@ class GraphFunction extends GraphObject {
         && (char() !== '*' || char(-1) !== '*')
         && !(char(-1) === ')' && /[*+-/^()]/.test(char())
           || char() === '(' && /[*+-/^()]/.test(char(-1)))) {
-          console.log('NOT FUNC BC TWO ADJACENT OPERATORS:');
-          console.log(char());
-          console.log(char(-1));
           return;
       }
       function char(indexOffset=0) {
@@ -112,7 +107,6 @@ class GraphFunction extends GraphObject {
         return functionText[i + indexOffset];
       }
     }
-    console.log('IS FUNC');
     return true;
   }
 
@@ -121,7 +115,6 @@ class GraphFunction extends GraphObject {
     functionText = functionText.trim();
     functionText = functionText.replaceAll('^', '**');
     for (let i = 0; i < functionText.length; i++) {
-      console.log(char());
 
       if (char(-1) && (char() == ')' && char(-1) == '(' || char() == '(' && char(-1) == ')')) {
         injectString('*');
@@ -134,8 +127,6 @@ class GraphFunction extends GraphObject {
         }
       }
 
-      console.log('hey');
-      console.log(char());
       // if non-x character
       if (/[A-Za-wy-z]/.test(char())) {
         // if reserved word, handle word & skip
@@ -191,7 +182,6 @@ class GraphFunction extends GraphObject {
         }
         return functionText[i + indexOffset];
       }
-      console.log(char());
     }
 
     // uneven parenthesis
@@ -202,8 +192,6 @@ class GraphFunction extends GraphObject {
         functionText = functionText + ')';
     }
 
-    console.log('final func:');
-    console.log(functionText);
     return functionText;
   }
 
@@ -260,7 +248,6 @@ class GraphFunction extends GraphObject {
 
   static createFunction(functionText) {
     let func = new Function('x', `return ${functionText};`);
-    console.log(func);
     return func;
   }
 
