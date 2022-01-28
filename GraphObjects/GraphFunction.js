@@ -12,11 +12,8 @@ class GraphFunction extends GraphObject {
   }
 
   derivative(x) {
-    // unsure of dx
-    // too small causes errors, too big causes inaccuracies,
-    // maybe make dx dynamic based on factors like the size of x and f(x)
-    let dx = 10**-12;
-    dx = 32 / Number.MAX_SAFE_INTEGER;
+    // well tested, this is the most accurate value for dx we'll get
+    let dx = 2**-24;
     let x2 = x + dx;
 
     let y = this._func(x);
