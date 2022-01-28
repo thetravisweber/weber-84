@@ -87,13 +87,13 @@ class GraphFunction extends GraphObject {
     }
 
     // if the first or last character is an operator
-    if (!/[\dA-Za-z()]/.test(functionText[0]) || !/[\dA-Za-z()]/.test(functionText[functionText.length - 1])) {
+    if (!/[\dA-Za-z(]/.test(functionText[0]) || !/[\dA-Za-z)]/.test(functionText[functionText.length - 1])) {
       return;
     }
 
     for (let i = 0; i < functionText.length; i++) {
       // two adjacent operators(unless they're both parentheses or **)
-      if (char(-1)
+      if (charExists(-1)
         && (/[*+-/()^]/.test(char()) && /[*+-/()^]/.test(char(-1)))
         && (char() !== '*' || char(-1) !== '*')
         && !(char(-1) === ')' && /[*+-/^()]/.test(char())
@@ -106,6 +106,9 @@ class GraphFunction extends GraphObject {
         }
         return functionText[i + indexOffset];
       }
+      function charExists(indexOffset) {
+        return i + indexOffset === constrain(i + indexOffset, 0, functionText.length - 1);
+      }
     }
     return true;
   }
@@ -114,15 +117,16 @@ class GraphFunction extends GraphObject {
     functionText = functionText.substring(functionText.indexOf('=') + 1);
     functionText = functionText.trim();
     functionText = functionText.replaceAll('^', '**');
+    let variables = [];
     for (let i = 0; i < functionText.length; i++) {
 
-      if (char(-1) && (char() == ')' && char(-1) == '(' || char() == '(' && char(-1) == ')')) {
+      if (charExists(-1) && (char() == ')' && char(-1) == '(' || char() == '(' && char(-1) == ')')) {
         injectString('*');
       }
       // not digit
-      if (char(-1) && (!/[\d]/.test(char()) || /[\d]/.test(char()) !== /[\d]/.test(char(-1)))) {
+      if (charExists(-1) && (!/[\d]/.test(char()) || /[\d]/.test(char()) !== /[\d]/.test(char(-1)))) {
         // not operator
-        if (char(-1) && !/[*+-/()]/.test(char()) && !/[*+-/()]/.test(char(-1)) ) {
+        if (charExists(-1) && !/[*+-/()]/.test(char()) && !/[*+-/()]/.test(char(-1)) ) {
           injectString('*');
         }
       }
@@ -131,8 +135,7 @@ class GraphFunction extends GraphObject {
       if (/[A-Za-wy-z]/.test(char())) {
         // if reserved word, handle word & skip
         if (!handleReservedString()) {
-          // otherwise, just replace variable with 3 for now
-          replaceString(1, '3');
+          createVariable();
         }
       }
 
@@ -144,6 +147,14 @@ class GraphFunction extends GraphObject {
       function replaceString(count, newString) {
         functionText = functionText.substring(0, i) + newString + functionText.substring(i + count);
         i += newString.length - count;
+      }
+      function createVariable() {
+        for (let j = 0; j < variables.length; j++) {
+          if (variables[j] == char()) {
+            return;
+          }
+        }
+        variables.push(char());
       }
 
       function handleReservedString() {
@@ -177,10 +188,13 @@ class GraphFunction extends GraphObject {
         }
       }
       function char(indexOffset=0) {
-        if (i + indexOffset !== constrain(i + indexOffset, 0, functionText.length - 1)) {
+        if (!charExists(indexOffset)) {
           return false;
         }
         return functionText[i + indexOffset];
+      }
+      function charExists(indexOffset) {
+        return i + indexOffset === constrain(i + indexOffset, 0, functionText.length - 1);
       }
     }
 
@@ -192,6 +206,12 @@ class GraphFunction extends GraphObject {
         functionText = functionText + ')';
     }
 
+    functionText = `return ${functionText};`;
+
+    variables.forEach(variable => {
+      functionText = `let ${variable} = ${Math.random()};
+      ${functionText}`;
+    });
     return functionText;
   }
 
@@ -247,7 +267,7 @@ class GraphFunction extends GraphObject {
   }
 
   static createFunction(functionText) {
-    let func = new Function('x', `return ${functionText};`);
+    let func = new Function('x', functionText);
     return func;
   }
 
