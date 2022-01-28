@@ -1,8 +1,14 @@
 
 function mouseWheel(event) {
-  mainField.zoom(event.delta / 1000);
+  // prevent actual zoom
+  event.preventDefault();
+  event.stopPropagation();
+  // trackpad gives off much smaller delta values than mousewheel
+  // this scale function gives a good feel to both
+  let scale = constrain(-10 * event.delta, -0.5, 0.5);
+  mainField.zoom(scale);
   draw();
-}
+};
 
 function createInputBox() {
   let uibox = document.createElement('uibox');
@@ -90,6 +96,25 @@ function controlGraphObjectCreation() {
     let graphFunction = new GraphFunction(func);
     mainField.addChild(graphFunction);
     this.parentElement.setAttribute('el-uid', graphFunction.getUid());
+
+    getInputs().forEach(input => {
+      if (input === this) {
+        return;
+      }
+      if (!DerivativeFunction.isDerivativeFunction(input.value)) {
+        return;
+      }
+      if (graphFunction === DerivativeFunction.getAntiderivativeFunction(input.value)) {
+        input.dispatchEvent(new Event('input'));
+      }
+    });
+    return draw();
+  }
+  if (DerivativeFunction.isDerivativeFunction(this.value)) {
+    let graphFunction = DerivativeFunction.getAntiderivativeFunction(this.value);
+    let derivFunction = new DerivativeFunction(graphFunction);
+    mainField.addChild(derivFunction);
+    this.parentElement.setAttribute('el-uid', derivFunction.getUid());
     return draw();
   }
   if (Point.isPoint(this.value)) {
@@ -210,6 +235,7 @@ function createVariableSlider(input) {
   slider.type = 'range';
   slider.min = -15;
   slider.max = 15;
+  slider.step = 0.1;
   slider.className = 'variable-slider';
   slider.addEventListener('input', () => {
     input.value = `${getVariableName(input.value)} = ${slider.value}`;

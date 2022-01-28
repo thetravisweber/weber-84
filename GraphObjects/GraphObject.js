@@ -20,4 +20,14 @@ class GraphObject {
   getUid() {
     return this._uid;
   }
+
+  inputElement() {
+    let inputs = getInputs();
+    for (let i = 0; i < inputs.length; i++) {
+      if (inputs[i].parentElement.getAttribute('el-uid') == this.getUid()) {
+        return inputs[i];
+      }
+    }
+  }
+
 }

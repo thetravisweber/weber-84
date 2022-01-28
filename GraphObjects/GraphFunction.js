@@ -68,7 +68,7 @@ class GraphFunction extends GraphObject {
       return;
     }
     let leftSide = functionText.substring(0, functionText.indexOf('='));
-    if (!leftSide.includes('y') && !leftSide.includes('(x)')) {
+    if (!this.isValidFunctionName(leftSide)) {
       return;
     }
     // if line 
@@ -121,12 +121,15 @@ class GraphFunction extends GraphObject {
     let variables = [];
     for (let i = 0; i < functionText.length; i++) {
 
-      if (charExists(-1) && (char() == ')' && char(-1) == '(' || char() == '(' && char(-1) == ')')) {
+      // (...)(...) -> (...)*(...)
+      if (charExists(-1) && ( char() == '(' && char(-1) == ')' )) {
         injectString('*');
       }
-      // not digit
-      if (charExists(-1) && (!/[\d]/.test(char()) || /[\d]/.test(char()) !== /[\d]/.test(char(-1)))) {
-        // not operator
+      
+      // ab -> a*b, 3a -> 3*a
+      // if char OR last char are not digits
+      if ( charExists(-1) && ( !/[\d]/.test(char(-1)) || !/[\d]/.test(char()) ) ) {
+        // if char AND last char are not operators
         if (charExists(-1) && !/[*+-/()]/.test(char()) && !/[*+-/()]/.test(char(-1)) ) {
           injectString('*');
         }
@@ -136,6 +139,7 @@ class GraphFunction extends GraphObject {
       if (/[A-Za-wy-z]/.test(char())) {
         // if reserved word, handle word & skip
         if (!handleReservedString()) {
+          // if not reserved word, create variable for character
           addVariable();
         }
       }
@@ -166,12 +170,24 @@ class GraphFunction extends GraphObject {
           'acos(',
           'asin(',
           'atan(',
-          'abs('
+          'abs(',
         ];
         let replacerStrings = [
           {
             original:'pi',
             new:'PI'
+          },
+          {
+            original:'e',
+            new:'Math.E'
+          },
+          {
+            original:'log(',
+            new:'1/log(10)*log('
+          },
+          {
+            original:'ln(',
+            new:'log('
           }
         ]
         for (let j = 0; j < reservedStrings.length; j++) {
@@ -222,11 +238,80 @@ class GraphFunction extends GraphObject {
   }
 
   toString() {
+    if (this.inputElement()) {
+      return this.inputElement().value;
+    }
     let str = this._func.toString();
     str = str.substring(str.indexOf('=>') + 2);
     str = 'f(x) =' + str;
     str = str.replaceAll('**', '^');
     return str;
+  }
+
+  static isValidFunctionName(functionName) {
+    functionName = functionName.trim();
+    if (functionName == 'y') {
+      return true;
+    }
+    if (!functionName.includes('(x)')) {
+      return false;
+    }
+    functionName = functionName.substring(0, functionName.indexOf('(x)'));
+    return !!functionName.trim();
+  }
+
+  // get functions name
+  // not to be confused with read name, which statically reads name from text parameter
+  getName() {
+    return GraphFunction.readName(this.toString());
+  }
+
+  nameMatches(name) {
+    return this.getName() === name;
+  }
+
+  static readName(functionText) {
+        // "f(x) ", "y ""
+        if (functionText.includes('=')) {
+          functionText = functionText.substring(0, functionText.indexOf('='));
+        }
+        // remove white space
+        functionText = functionText.trim();
+        return functionText;
+  }
+
+  static getMatchingFunction(functionText) {
+    let functionName = this.readName(functionText);
+    if (!functionName) {
+      return;
+    }
+    let graphFunctions = this.getGraphFunctions();
+    for (let i = 0; i < graphFunctions.length; i++) {
+      if (graphFunctions[i].nameMatches(functionName)) {
+        return graphFunctions[i];
+      }
+    }
+  }
+
+  // function with name functionName exists
+  static matchingFunctionExists(functionName) {
+    let graphFunctions = this.getGraphFunctions();
+    for (let i = 0; i < graphFunctions.length; i++) {
+      if (graphFunctions[i].nameMatches(functionName)) {
+        return true;
+      }
+    }
+  }
+
+  static getGraphFunctions() {
+    let graphObjects = mainField.getChildren();
+    let functions = [];
+    for (let i = 0; i < graphObjects.length; i++) {
+      if (graphObjects[i].type === FUNCTION) {
+        functions.push(graphObjects[i]);
+      }
+    }
+    return functions;
   }
 
 }
