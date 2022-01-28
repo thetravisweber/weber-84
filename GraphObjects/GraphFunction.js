@@ -70,6 +70,10 @@ class GraphFunction extends GraphObject {
     if (!functionText.includes('=')) {
       return;
     }
+    let leftSide = functionText.substring(0, functionText.indexOf('='));
+    if (!leftSide.includes('y') && !leftSide.includes('(x)')) {
+      return;
+    }
     // if line 
     if (functionText.includes('=>')) {
       return;
@@ -135,7 +139,7 @@ class GraphFunction extends GraphObject {
       if (/[A-Za-wy-z]/.test(char())) {
         // if reserved word, handle word & skip
         if (!handleReservedString()) {
-          createVariable();
+          addVariable();
         }
       }
 
@@ -148,7 +152,7 @@ class GraphFunction extends GraphObject {
         functionText = functionText.substring(0, i) + newString + functionText.substring(i + count);
         i += newString.length - count;
       }
-      function createVariable() {
+      function addVariable() {
         for (let j = 0; j < variables.length; j++) {
           if (variables[j] == char()) {
             return;
@@ -209,60 +213,9 @@ class GraphFunction extends GraphObject {
     functionText = `return ${functionText};`;
 
     variables.forEach(variable => {
-      functionText = `let ${variable} = ${Math.random()};
+      functionText = `let ${variable} = ${getVariable(variable)};
       ${functionText}`;
     });
-    return functionText;
-  }
-
-  static isGraphFunctionOld(functionText) {
-    if (!functionText.includes('=')) {
-      return;
-    }
-    // if line 
-    if (functionText.includes('=>')) {
-      return;
-    }
-    
-    let rightSide = functionText.substring(functionText.indexOf('=') + 1);
-    let rightSideTest = isValidString(rightSide);
-    rightSideTest = rightSideTest && isValidString(rightSide.charAt(rightSide.length - 1));
-
-    return rightSideTest;
-
-    function isValidString(txt) {
-      // txt contains x or number
-      let test = /[x\d]/.test(txt);
-      // txt does not contain any other letters
-      test = test && !/[A-Za-wy-z]/.test(txt);
-      return test;
-    }
-  }
-
-  static getFunctionTextOld(functionText) {
-    functionText = functionText.substring(functionText.indexOf('=') + 1);
-    functionText = functionText.trim();
-    
-    // n = constant
-    for (let i = 1; i < functionText.length; i++) {
-      let char = functionText[i];
-      let lastChar = functionText[i-1];
-      // nx => n*x
-      if (/[\d]/.test(lastChar) !== /[\d]/.test(char)) {
-        if (!/[*+-/]/.test(lastChar) && !/[*+-/]/.test(char)) {
-          injectString('*');
-        }
-      }
-      // x^n => x**n
-      if (char == '^') {
-        injectString('**');
-      }
-
-      function injectString(substr) {
-        functionText = functionText.substring(0, i) + substr + functionText.substring(i + substr.length - 1);
-        i += substr.length;
-      }
-    }
     return functionText;
   }
 

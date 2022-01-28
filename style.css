@@ -77,3 +77,19 @@ inputbox input {
     background-color: var(--ui-box-shadow);
     color : var(--cool-green);
 }
+
+.variable-slider {
+    -webkit-appearance: none;
+    height: 10px;
+    border-radius: 5px;
+    display: block;
+    width: calc(100% - 10px);
+}
+
+.variable-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 16px;
+    width: 16px;
+    border: var(--cool-green) 2px solid;
+    background-color: black;
+}
