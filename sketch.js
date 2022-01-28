@@ -3,7 +3,7 @@ const PRIMARY = 220;
 const BKG = 0;
 const WEIGHT = 3, POINT_WEIGHT = 4;
 const DRAG_CANVAS = 'DRAG_CANVAS', ANALYZE = 'ANALYZE';
-const ADD_POINT = 'ADD_POINT', ADD_LINE = 'ADD_LINE';
+const ADD_POINT = 'ADD_POINT', ADD_LINE = 'ADD_LINE', ADD_VECTOR = 'ADD_VECTOR';
 
 const POINT = 'POINT', LINE = 'LINE', FUNCTION = 'FUNCTION';
 let userActionMode = DRAG_CANVAS;
@@ -15,14 +15,14 @@ function setup() {
   rectMode(CENTER);
 
   let kids = [
-    new Vector(4, 5),
-    new Vector(1, 2)
+    new GraphFunction(x => x**2)
   ];
   mainField.setChildren(kids);
   
   // UI
   createInputBox();
 }
+
 
 function draw() {
   background(BKG);

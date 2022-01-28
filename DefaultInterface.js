@@ -26,22 +26,28 @@ function addInputsForExistingGraphObjects() {
 }
 
 function addInputForExisting(text, uid) {
-  let inputbox = getNewBlankInput();
+  let inputbox = getNewBlankInputBox();
   inputbox.setAttribute('el-uid', uid);
-  inputbox.getElementsByTagName('input')[0].value = text;
+  inputbox.getElementsByClassName('ui-input')[0].value = text;
   document.getElementsByTagName('inputarea')[0].append(inputbox);
 }
 
-function addNewBlankInput() {
-  document.getElementsByTagName('inputarea')[0].append(getNewBlankInput());
+function addNewBlankInput(e) {
+  let input = getNewBlankInputBox();
+  document.getElementsByTagName('inputarea')[0].append(input);
+  if (e) {
+    let inputs = getInputs();
+    inputs[inputs.length - 1].focus();
+  }
 }
 
-function getNewBlankInput() {
+function getNewBlankInputBox() {
   let inputbox = document.createElement('inputbox');
   inputbox.id = createUid();
   let inputEl = document.createElement('input');
   inputEl.placeholder = 'new Line, Point, Function';
   inputEl.oninput = controlGraphObjectCreation;
+  inputEl.className = 'ui-input';
   let deleteBtn = document.createElement('button');
   deleteBtn.innerText = '×';
   deleteBtn.onclick = deleteInput;
@@ -50,11 +56,22 @@ function getNewBlankInput() {
   return inputbox;
 }
 
+function getInputs() {
+  return [...document.getElementsByClassName('ui-input')];
+}
+
+function getInput(index) {
+  return getInputs()[index];
+}
+
 function controlGraphObjectCreation() {
   if (this.parentElement.getAttribute('el-uid')) {
     mainField.removeChildByUid(this.parentElement.getAttribute('el-uid'));
   }
   this.setAttribute('el-uid', '');
+  if (getVariableName(this.value)) {
+    return variableChanged(this);
+  }
   if (Line.isLine(this.value)) {
     let line = Line.getLine(this.value);
     mainField.addChild(line);
@@ -98,12 +115,139 @@ function createUid() {
   return Math.floor( Math.random() * Number.MAX_SAFE_INTEGER );
 }
 
+function controlInput(e) {
+  switch (e.key) {
+    case 'Tab' :
+      e.preventDefault();
+      if (keyIsDown(SHIFT)) {
+        focusOnLastInput();
+      } else {
+        focusOnNextInput();
+      }
+      break;
+    case 'Enter' :
+      document.getElementById('new-input-btn').click();
+      break;
+    case 'Backspace' :
+      let activeInput = document.activeElement;
+      if (!activeInput.value) {
+        e.preventDefault();
+        focusOnLastInput();
+        activeInput.parentElement.remove();
+      }
+      break;
+  }
+}
+
+function getVariable(variable) {
+  let inputs = getInputs();
+  for (let i = 0; i < inputs.length; i++) {
+    if (getVariableName(inputs[i].value) == variable) {
+      return getVariableValue(inputs[i].value);
+    }
+  }
+  return createVariable(variable);
+}
+
+function getVariableName(variableText) {
+  // if line
+  if (variableText.includes('=>')) {
+    return;
+  }
+
+  if (!variableText.includes('=')) {
+    return;
+  }
+  variableText = variableText.substring(0, variableText.indexOf('=')).trim();
+  if (!variableText) {
+    return;
+  }
+  if (variableText.includes('y') || variableText.includes('(x)')) {
+    return;
+  }
+  if (!/[A-Za-z]/.test(variableText[0])) {
+    return;
+  }
+  return variableText;
+}
+
+function getVariableValue(variableText) {
+  variableText = variableText.substring(variableText.indexOf('=') + 1).trim();
+  if (!variableText) {
+    return;
+  }
+  return variableText;
+}
+
+function createVariable(variableName) {
+  addNewBlankInput();
+  let input = getInput(getInputs().length - 1);
+  input.value = `${variableName} = 1`;
+  createVariableSlider(input);
+  return getVariableValue(input.value);
+}
+
+function variableChanged(variableInput) {
+  let value = getVariableValue(variableInput.value);
+  variableSlider(variableInput).value = value;
+  getInputs().forEach(input => {
+    if (GraphFunction.isGraphFunction(input.value)) {
+      input.dispatchEvent(new Event('input'));
+    }
+  })
+}
+
+function variableSlider(variableInput) {
+  let slider = variableInput.parentElement.getElementsByClassName('variable-slider')[0];
+  if (!slider) {
+    slider = createVariableSlider(variableInput);
+  }
+  return slider;
+}
+
+function createVariableSlider(input) {
+  let slider = document.createElement('input');
+  slider.type = 'range';
+  slider.min = -15;
+  slider.max = 15;
+  slider.className = 'variable-slider';
+  slider.addEventListener('input', () => {
+    input.value = `${getVariableName(input.value)} = ${slider.value}`;
+    variableChanged(input);
+  });
+
+  input.parentElement.append(slider);
+  return slider;
+}
+
+function focusOnNextInput() {
+  let inputs = getInputs();
+  for (let i = 0; i < inputs.length; i++) {
+    if (inputs[i] === document.activeElement) {
+      if (i < inputs.length - 1) {
+        return inputs[i+1].focus();
+      }
+      return document.getElementById('new-input-btn').focus();
+    }
+  }
+}
+
+function focusOnLastInput() {
+  let inputs = getInputs();
+  for (let i = 1; i < inputs.length; i++) {
+    if (inputs[i] === document.activeElement) {
+      return inputs[i-1].focus();
+    }
+  }
+}
+
 function keyPressed(event) {
   if (isInput()) {
-    return;
+    return controlInput(event);
   }
   const ADD_POINT_HOTKEY = 'p';
   const ADD_LINE_HOTKEY = 'l';
+  const ADD_VECTOR_HOTKEY = 'v';
   const DRAG_CANVAS_HOTKEY = 'm';
   const ANALYZE_HOTKEY = 'a';
   const FULLSCREEN_HOTKEY = 'f';
@@ -117,6 +261,9 @@ function keyPressed(event) {
       break;
     case ADD_LINE_HOTKEY :
       setUserActionMode(ADD_LINE);
+      break;
+    case ADD_VECTOR_HOTKEY :
+      setUserActionMode(ADD_VECTOR);
       break;
     case DRAG_CANVAS_HOTKEY :
       setUserActionMode(DRAG_CANVAS);
@@ -198,6 +345,9 @@ function mousePressed() {
     case ADD_LINE :
       registerMousePressForNewLine();
       break;
+    case ADD_VECTOR :
+      registerMousePressForNewVector();
+      break;
     case ADD_POINT :
       addPoint(mouseX, mouseY);
       break;
@@ -208,6 +358,7 @@ function mousePressed() {
   setMouseDownMemory();
 }
 
+// line
 let lineStart;
 resetLineStart();
 
@@ -233,6 +384,34 @@ function startLine() {
 function resetLineStart() {
   lineStart = false;
 }
+
+// vector
+let vectorStart;
+resetVectorStart();
+
+function registerMousePressForNewVector() {
+  if (!vectorStart)
+    return startVector();
+  
+  let head = mainField.unmapPoint(mouseX, mouseY);
+  let tail = mainField.unmapPoint(vectorStart.x, vectorStart.y);
+  mainField.addChild(new Vector(head.x - tail.x, head.y - tail.y, tail.x, tail.y));
+  draw();
+
+  resetVectorStart();
+}
+
+function startVector() {
+  vectorStart = {
+    x : mouseX,
+    y : mouseY
+  }
+}
+
+function resetVectorStart() {
+  vectorStart = false;
+}
+
 
 function addPoint(x, y) {
   let unmapped = mainField.unmapPoint(x, y);
@@ -278,6 +457,9 @@ let pMouse = {
 };
 
 function mouseDragged() {
+  if (isInput()) {
+    return;
+  }
   switch (mouseActionMode()) {
     case DRAG_CANVAS :
       dragCanvas();
@@ -333,16 +515,21 @@ function userInputMode() {
 let analyzedElement;
 let isFocusingOnAnalyzedElement = false;
 function hoverAnalysis(x, y) {
-  if (isFocusingOnAnalyzedElement)
+  if (isFocusingOnAnalyzedElement) {
     return;
-  let newElement = mainField.findGraphElement(x, y);
-  if (newElement == analyzedElement)
-    return;
-  analyzedElement = newElement;
+  }
+  analyzedElement = mainField.findGraphElement(x, y);
 
   draw();
-  if (analyzedElement) {
-    newElement.highlight();
+  if (!analyzedElement) {
+    isFocusingOnAnalyzedElement = false;
+    return;
+  }
+
+  analyzedElement.highlight();
+  if (analyzedElement.type === FUNCTION) {
+    let p = mainField.unmapPoint(mouseX, 1);
+    analyzedElement.highlightTangent(p.x);
   }
 }
 
