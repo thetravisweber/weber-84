@@ -55,6 +55,7 @@ function getNewBlankInputBox() {
   inputEl.oninput = controlGraphObjectCreation;
   inputEl.className = 'ui-input';
   let deleteBtn = document.createElement('button');
+  deleteBtn.className = 'delete-btn';
   deleteBtn.innerText = '×';
   deleteBtn.onclick = deleteInput;
   inputbox.append(inputEl);
@@ -179,15 +180,17 @@ function getVariableName(variableText) {
   if (variableText.includes('=>')) {
     return;
   }
-
+  // if no assignment
   if (!variableText.includes('=')) {
     return;
   }
-  variableText = variableText.substring(0, variableText.indexOf('=')).trim();
-  if (!variableText) {
+  // if function
+  if (variableText.includes('y') || variableText.includes('(x)')) {
     return;
   }
-  if (variableText.includes('y') || variableText.includes('(x)')) {
+  // cut right side & white space
+  variableText = variableText.substring(0, variableText.indexOf('=')).trim();
+  if (!variableText) {
     return;
   }
   if (!/[A-Za-z]/.test(variableText[0])) {
@@ -235,6 +238,7 @@ function createVariableSlider(input) {
   slider.type = 'range';
   slider.min = -15;
   slider.max = 15;
+  slider.value = getVariableValue(input.value);
   slider.step = 0.1;
   slider.className = 'variable-slider';
   slider.addEventListener('input', () => {
@@ -243,9 +247,103 @@ function createVariableSlider(input) {
   });
 
   input.parentElement.append(slider);
+
+  let variableName = getVariableName(input.value);
+  if (variableName == 't' || variableName == 'T') {
+    setTimerVariable(slider);
+  }
+
   return slider;
 }
 
+function setTimerVariable(slider) {
+  createTimerButton(slider);
+  slider.min = 0;
+  slider.max = 60;
+  slider.step = 0.01;
+  createTimerRange(slider);
+}
+
+function createTimerButton(slider) {
+  let timer = document.createElement('button');
+  timer.className = 'play-btn';
+  timer.setAttribute('playing', false);
+
+  let playSymb = document.createElement('i');
+  playSymb.className = "fa fa-play"
+  timer.append(playSymb);
+  let pauseSymb = document.createElement('i');
+  pauseSymb.className = "fa fa-pause"
+  timer.append(pauseSymb);
+
+  timer.onclick = () => {
+    toggleTimer(timer, slider);
+  }
+  slider.parentElement.append(timer);
+}
+
+function toggleTimer(timer, slider) {
+  if (isCounting(timer)) {
+    pauseTimer(timer);
+  } else {
+    startTimer(timer, slider);
+  }
+}
+
+function incrementTimer(timer, slider) {
+  if (!isCounting(timer)) {
+    return;
+  }
+  let timeout = 30;
+  let step = 0.1;
+  slider.value = Number.parseFloat(slider.value) + step;
+  slider.dispatchEvent(new Event('input'));
+  if (slider.value == slider.max) {
+    return pauseTimer(timer);
+  }
+  setTimeout(() => {
+    incrementTimer(timer, slider);
+  }, timeout);
+}
+
+function startTimer(timer, slider) {
+  timer.setAttribute('playing', true);
+  incrementTimer(timer, slider);
+}
+
+function pauseTimer(timer) {
+  timer.setAttribute('playing', false);
+}
+
+function isCounting(timer) {
+  return timer.getAttribute('playing') == 'true';
+}
+
+function createTimerRange(slider) {
+  let range = document.createElement('variablerangebox');
+  let min = document.createElement('input');
+  let max = document.createElement('input');
+  let textStart = document.createElement('p');
+  let textMid = document.createElement('p');
+  let textEnd = document.createElement('p');
+  textStart.innerText = 'Range : [';
+  min.value = slider.min;
+  min.oninput = () => {
+    slider.min = min.value;
+  }
+  textMid.innerText = ', ';
+  max.value = slider.max;
+  max.oninput = () => {
+    slider.max = max.value;
+  }
+  textEnd.innerText = ']';
+  range.append(textStart);
+  range.append(min);
+  range.append(textMid);
+  range.append(max);
+  range.append(textEnd);
+  slider.parentElement.append(range);
+}
 function focusOnNextInput() {
   let inputs = getInputs();
   for (let i = 0; i < inputs.length; i++) {
