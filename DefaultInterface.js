@@ -260,7 +260,7 @@ function setTimerVariable(slider) {
   createTimerButton(slider);
   slider.min = 0;
   slider.max = 60;
-  slider.step = 0.01;
+  slider.step = 0.1;
   createTimerRange(slider);
 }
 
@@ -295,8 +295,7 @@ function incrementTimer(timer, slider) {
     return;
   }
   let timeout = 30;
-  let step = 0.1;
-  slider.value = Number.parseFloat(slider.value) + step;
+  slider.value = Number.parseFloat(slider.value) + Number.parseFloat(slider.step);
   slider.dispatchEvent(new Event('input'));
   if (slider.value == slider.max) {
     return pauseTimer(timer);
@@ -307,6 +306,9 @@ function incrementTimer(timer, slider) {
 }
 
 function startTimer(timer, slider) {
+  if (slider.value == slider.max) {
+    slider.value = slider.min;
+  }
   timer.setAttribute('playing', true);
   incrementTimer(timer, slider);
 }

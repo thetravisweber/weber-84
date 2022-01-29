@@ -119,4 +119,12 @@ class Vector extends Line {
     vector.y2 = vector.y1 + vector.yMagnitude() * scalar;
   }
 
+  static dotProduct(vector1, vector2) {
+    return vector1.xMagnitude()*vector2.xMagnitude() + vector1.yMagnitude()*vector2.yMagnitude();
+  }
+
+  static crossProduct(vector1, vector2) {
+    return vector1.xMagnitude()*vector2.xMagnitude() + vector1.yMagnitude()*vector2.yMagnitude();
+  }
+
 }

@@ -18,7 +18,7 @@ class Line extends GraphObject {
   angle() {
     let t = atan(this.slope());
     if (this.x1 > this.x2) {
-      t = PI + t;
+      t += PI;
     }
     return t;
   }
