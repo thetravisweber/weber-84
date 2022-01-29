@@ -5,7 +5,7 @@ const WEIGHT = 3, POINT_WEIGHT = 4;
 const DRAG_CANVAS = 'DRAG_CANVAS', ANALYZE = 'ANALYZE';
 const ADD_POINT = 'ADD_POINT', ADD_LINE = 'ADD_LINE', ADD_VECTOR = 'ADD_VECTOR';
 
-const POINT = 'POINT', LINE = 'LINE', FUNCTION = 'FUNCTION';
+const POINT = 'POINT', LINE = 'LINE', FUNCTION = 'FUNCTION', VECTOR_FIELD='VECTOR_FIELD';
 let userActionMode = DRAG_CANVAS;
 
 function setup() {
@@ -15,7 +15,9 @@ function setup() {
   rectMode(CENTER);
 
   let kids = [
-    new GraphFunction(x => x**2)
+    new Gradient((x,y) => {
+      return 2*(x*y*cos(x)**2*sin(y)**2)/(x*y);
+    })
   ];
   mainField.setChildren(kids);
   

@@ -52,14 +52,14 @@ inputbox * {
     background-color: inherit;
 }
 
-inputbox button {
+.delete-btn {
     padding: 0;
     border: none;
     font-size: 24px;
     transition: transform 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955)
 }
 
-inputbox button:hover {
+.delete-btn:hover {
     transform: rotate(270deg);
 }
 
@@ -92,4 +92,44 @@ inputbox input {
     width: 16px;
     border: var(--cool-green) 2px solid;
     background-color: black;
+}
+
+.play-btn {
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    border: none;
+}
+
+.play-btn .fa {
+    margin: 0;
+    transition: 0.3s;
+}
+
+.play-btn[playing=true] .fa-play {
+    transform: rotate(0) scale(0);
+    opacity: 0;
+}
+
+.play-btn[playing=false] .fa-play {
+    transform: rotate(720deg);
+}
+
+.play-btn[playing=true] .fa-pause {
+    transform: rotate(720deg) translateY(-16px);
+}
+
+.play-btn[playing=false] .fa-pause {
+    transform: rotate(0) scale(0) translateY(-16px);
+    opacity: 0;
+}
+
+variablerangebox {
+    font-size: 18px;
+}
+
+variablerangebox input {
+    border: none;
+    background: none;
+    width: 30px;
 }
