@@ -15,13 +15,8 @@ function setup() {
   rectMode(CENTER);
 
   let kids = [
-    new Gradient( (x,y) => {
-      return sin(x)-cos(y);
-    }),
-    new VectorField((x,y) => {
-      return cos(x);
-    }, (x,y) => {
-      return sin(y);
+    new Gradient((x,y) => {
+      return 2*(x*y*cos(x)**2*sin(y)**2)/(x*y);
     })
   ];
   mainField.setChildren(kids);

@@ -37,6 +37,23 @@ class TwoSpaceRenderEngine {
     this.line(start.x, start.y, end.x, end.y);
   }
 
+  pointer(xMagnitude, yMagnitude, x, y) {
+    let start = createVector(x - xMagnitude, y - yMagnitude);
+    let end   = createVector(x, y);
+
+    let t = atan((end.y - start.y) / (end.x - start.x));
+    if (xMagnitude < 0) {
+      t += PI;
+    }
+    let forwardAngle = t + 19*PI/16;
+    let backwardAngle = t - 19*PI/16;
+
+    let magnitude = sqrt(yMagnitude**2 + xMagnitude**2);
+    let headRatio = 6;
+    this.line(end.x + (cos(forwardAngle) * magnitude / headRatio), end.y + (sin(forwardAngle) * magnitude / headRatio), end.x, end.y);
+    this.line(end.x + (cos(backwardAngle) * magnitude / headRatio), end.y + (sin(backwardAngle) * magnitude / headRatio), end.x, end.y);
+  }
+
   point(x1, y1) {
     let pos = this.field.mapPoint(x1, y1);
     point(pos.x,pos.y)
@@ -75,7 +92,9 @@ class TwoSpaceRenderEngine {
   vectorField(xFunc, yFunc) {
     this.#sample2DPoints().forEach(pt => {
       // <h(x, y), k(x, y)>
-      this.vector(xFunc(pt.x, pt.y), yFunc(pt.x, pt.y), pt.x, pt.y);
+      // pick your poison
+      // this.vector(xFunc(pt.x, pt.y), yFunc(pt.x, pt.y), pt.x, pt.y);
+      this.pointer(xFunc(pt.x, pt.y), yFunc(pt.x, pt.y), pt.x, pt.y);
     });
   }
 
