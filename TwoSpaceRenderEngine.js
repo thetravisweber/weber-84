@@ -13,7 +13,6 @@ class TwoSpaceRenderEngine {
   vector(xMagnitude, yMagnitude, x, y) {
     let start = createVector(x, y);
     let end   = createVector(x+xMagnitude, y+yMagnitude);
-    line(start.x, start.y, end.x, end.y);
 
     let t = atan((end.y - start.y) / (end.x - start.x));
     if (start.x > end.x) {
@@ -73,30 +72,25 @@ class TwoSpaceRenderEngine {
     return acc;
   }
 
-  
-  gradient(func) {
-    strokeWeight(1);
+  vectorField(xFunc, yFunc) {
     this.#sample2DPoints().forEach(pt => {
+      // <h(x, y), k(x, y)>
+      this.vector(xFunc(pt.x, pt.y), yFunc(pt.x, pt.y), pt.x, pt.y);
+    });
+  }
+
+  gradient(func) {
+    this.#sample2DPoints().forEach(pt => {
+      // f(x, y)
       let f = func(pt.x, pt.y);
       // Δ
       let d = 2**-24;
       // ∂f/∂x
-      let px = (func(pt.x+d, pt.y)-f) / d;
+      let Fx = (func(pt.x+d, pt.y)-f) / d;
       // ∂f/∂y
-      let py = (func(pt.x, pt.y+d)-f) / d;
-      // let tail = this.field.mapPoint(pt.x, pt.y);
-      // let head = this.field.mapPoint(pt.x + px, pt.y + py);
-      // let tail = pt;
-      // let head = createVector(pt.x + px, pt.y + py);
-
-      // let t = atan((head.y - tail.y) / (head.x - tail.x));
-      // if (tail.x > head.x) {
-      //   t += PI;
-      // }
-      // stroke(255, head.x > tail.x ? 255 : 0, head.y > tail.y ? 255 : 0);
-      // this.line(tail.x, tail.y, head.x, head.y);
-
-      this.vector(px, py, pt.x, pt.y);
+      let Fy = (func(pt.x, pt.y+d)-f) / d;
+      // <∂f/∂x, ∂f/∂y>
+      this.vector(Fx, Fy, pt.x, pt.y);
     });
   }
 

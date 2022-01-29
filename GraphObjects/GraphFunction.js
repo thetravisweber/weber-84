@@ -243,8 +243,13 @@ class GraphFunction extends GraphObject {
     }
     let str = this._func.toString();
     str = str.substring(str.indexOf('=>') + 2);
-    str = 'f(x) =' + str;
     str = str.replaceAll('**', '^');
+    str = str.replaceAll('return', '');
+    str = str.replaceAll(';', '');
+    str = str.replaceAll('{', '');
+    str = str.replaceAll('}', '');
+    str = str.trim();
+    str = 'f(x) =' + str;
     return str;
   }
 

@@ -1,17 +1,19 @@
-class Gradient extends VectorField {
-    constructor (func) {
-        super((x, y) => {
-            let d = 2 ** -24;
-            return (func(x+d,y)-func(x,y)) / d;
-        }, 
-        (x, y) => {
-            let d = 2 ** -24;
-            return (func(x,y+d)-func(x,y)) / d;
-        });
+class VectorField extends GraphObject {
+    constructor (xFunc, yFunc) {
+        super();
+        this._xFunc = xFunc;
+        this._yFunc = yFunc;
+        this.type = VECTOR_FIELD;
+    }
+
+    draw(color=PRIMARY, weight=1) {
+        stroke(color);
+        strokeWeight(weight);
+        this._renderer.vectorField(this._xFunc, this._yFunc);
     }
 
     toString() {
-        return '∇f(x, y)';
+        return `<${VectorField.getString(this._xFunc.toString())}, ${VectorField.getString(this._yFunc.toString())}>`;
     }
 
     static getString(functString) {
@@ -22,7 +24,6 @@ class Gradient extends VectorField {
         functString = functString.replaceAll('{', '');
         functString = functString.replaceAll('}', '');
         functString = functString.trim();
-        functString = '∇f(x, y) = ' + functString;
         return functString;
     }
 }

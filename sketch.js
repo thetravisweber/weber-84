@@ -5,7 +5,7 @@ const WEIGHT = 3, POINT_WEIGHT = 4;
 const DRAG_CANVAS = 'DRAG_CANVAS', ANALYZE = 'ANALYZE';
 const ADD_POINT = 'ADD_POINT', ADD_LINE = 'ADD_LINE', ADD_VECTOR = 'ADD_VECTOR';
 
-const POINT = 'POINT', LINE = 'LINE', FUNCTION = 'FUNCTION', GRADIENT='GRADIENT';
+const POINT = 'POINT', LINE = 'LINE', FUNCTION = 'FUNCTION', VECTOR_FIELD='VECTOR_FIELD';
 let userActionMode = DRAG_CANVAS;
 
 function setup() {
@@ -16,7 +16,12 @@ function setup() {
 
   let kids = [
     new Gradient( (x,y) => {
-      return x**4 + sin(y);
+      return sin(x)-cos(y);
+    }),
+    new VectorField((x,y) => {
+      return cos(x);
+    }, (x,y) => {
+      return sin(y);
     })
   ];
   mainField.setChildren(kids);
