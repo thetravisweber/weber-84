@@ -1,5 +1,7 @@
 # weber-84
-Web Based Graphing Calculator, designed to help me explore certain math principles, namely matrix transforms.
+Web Based Graphing Calculator, designed to help me explore certain math principles, namely matrix transformations.
+
+You can view a working version of it here: https://weber-84.herokuapp.com/. (directions not included)
 
 ## Setup
 
