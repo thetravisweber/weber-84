@@ -7,6 +7,10 @@ button {
     cursor: pointer;
 }
 
+* {
+    transition: transform 350ms cubic-bezier(0.455, 0.03, 0.515, 0.955);
+}
+
 popup {
     background-color : #ccc;
     color : #333;
@@ -38,8 +42,14 @@ uibox {
     background-color: transparent;
 }
 
+inputarea {
+    display: block;
+}
+
 uibox * {
     margin: 2px;
+    outline: none;
+    color : var(--cool-green);
 }
 
 inputbox {
@@ -55,6 +65,7 @@ inputbox * {
 .delete-btn {
     padding: 0;
     border: none;
+    background-color: transparent;
     font-size: 24px;
     transition: transform 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955)
 }
@@ -69,13 +80,27 @@ inputbox input {
     border-radius: 3px;
     font-size: 18px;
     background-color: var(--ui-box-shadow);
+    margin-left: 0;
+}
+
+.closed {
+    transform: translateX(-105%);
 }
 
 #new-input-btn {
     border: var(--cool-green) 2px solid;
     border-radius: 3px;
     background-color: var(--ui-box-shadow);
-    color : var(--cool-green);
+}
+
+#open-and-close-btn {
+    float: right;
+    border: none;
+    background-color: transparent;
+}
+
+topbar.closed * {
+    transform: translateX(-200px) scale(-1, 1);
 }
 
 .variable-slider {

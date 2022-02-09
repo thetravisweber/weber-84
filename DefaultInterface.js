@@ -8,43 +8,13 @@ function mouseWheel(event) {
   let scale = constrain(-10 * event.delta, -0.5, 0.5);
   mainField.zoom(scale);
   draw();
-};
-
-function createInputBox() {
-  let uibox = document.createElement('uibox');
-  let inputarea = document.createElement('inputarea');
-  let newInputBtn = document.createElement('button');
-  newInputBtn.innerText = 'New';
-  newInputBtn.onclick = addNewBlankInput;
-  newInputBtn.id = 'new-input-btn';
-  uibox.append(inputarea);
-  uibox.append(newInputBtn);
-  document.body.append(uibox);
-  addInputsForExistingGraphObjects();
-  addNewBlankInput();
-}
-
-// add inputs for starting graph objects
-function addInputsForExistingGraphObjects() {
-  mainField.getChildren().forEach(child => {
-    addInputForExisting(child.toString(), child.getUid());
-  })
-}
+}; 
 
 function addInputForExisting(text, uid) {
   let inputbox = getNewBlankInputBox();
   inputbox.setAttribute('el-uid', uid);
   inputbox.getElementsByClassName('ui-input')[0].value = text;
   document.getElementsByTagName('inputarea')[0].append(inputbox);
-}
-
-function addNewBlankInput(e) {
-  let input = getNewBlankInputBox();
-  document.getElementsByTagName('inputarea')[0].append(input);
-  if (e) {
-    let inputs = getInputs();
-    inputs[inputs.length - 1].focus();
-  }
 }
 
 function getNewBlankInputBox() {
@@ -208,7 +178,7 @@ function getVariableValue(variableText) {
 }
 
 function createVariable(variableName) {
-  addNewBlankInput();
+  sideBar.addNewBlankInput();
   let input = getInput(getInputs().length - 1);
   input.value = `${variableName} = 1`;
   createVariableSlider(input);
