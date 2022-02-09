@@ -42,6 +42,10 @@ uibox {
     background-color: transparent;
 }
 
+inputarea {
+    display: block;
+}
+
 uibox * {
     margin: 2px;
     outline: none;
@@ -76,6 +80,7 @@ inputbox input {
     border-radius: 3px;
     font-size: 18px;
     background-color: var(--ui-box-shadow);
+    margin-left: 0;
 }
 
 .closed {
