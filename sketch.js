@@ -1,4 +1,5 @@
 let mainField;
+let sideBar;
 const PRIMARY = 220;
 const BKG = 0;
 const WEIGHT = 3, POINT_WEIGHT = 4;
@@ -13,7 +14,8 @@ function setup() {
   mainField = new Field();
   noLoop();
   rectMode(CENTER);
-
+  
+  
   let kids = [
     new Gradient((x,y) => {
       return 2*(x*y*cos(x)**2*sin(y)**2)/(x*y);
@@ -22,7 +24,7 @@ function setup() {
   mainField.setChildren(kids);
   
   // UI
-  createInputBox();
+  sideBar = new SideBar();
 }
 
 
