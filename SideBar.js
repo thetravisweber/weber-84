@@ -38,13 +38,25 @@ class SideBar {
   createTopBar() {
     let topBar = document.createElement("topbar");
 
+    topBar.append(this.createOpenCloseButton());
+    topBar.append(this.createSettingsButton());
+    this.uibox.append(topBar);
+  }
+
+  createSettingsButton() {
+    let settingsButton = document.createElement("button");
+    settingsButton.innerText = "⚙";
+    settingsButton.onclick = () => {settings.openView()};
+    settingsButton.id = 'open-settings-btn';
+    return settingsButton;
+  }
+
+  createOpenCloseButton() {
     let openAndClose = document.createElement("button");
     openAndClose.innerText = "<<";
     openAndClose.onclick = () => {this.openOrClose()};
     openAndClose.id = 'open-and-close-btn';
-
-    topBar.append(openAndClose);
-    this.uibox.append(topBar);
+    return openAndClose;
   }
 
   openOrClose() {

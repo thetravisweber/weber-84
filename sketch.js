@@ -1,12 +1,16 @@
+// singletons (not really)
 let mainField;
 let sideBar;
+let settings;
+
+// Constants
 const PRIMARY = 220;
 const BKG = 0;
 const WEIGHT = 3, POINT_WEIGHT = 4;
 const DRAG_CANVAS = 'DRAG_CANVAS', ANALYZE = 'ANALYZE';
 const ADD_POINT = 'ADD_POINT', ADD_LINE = 'ADD_LINE', ADD_VECTOR = 'ADD_VECTOR';
-
 const POINT = 'POINT', LINE = 'LINE', FUNCTION = 'FUNCTION', VECTOR_FIELD='VECTOR_FIELD';
+
 let userActionMode = DRAG_CANVAS;
 
 function setup() {
