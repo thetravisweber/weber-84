@@ -63,82 +63,17 @@ class SideBar {
 
   addInputsForExistingGraphObjects() {
     mainField.getChildren().forEach(child => {
-      this.addInputForExisting(child.toString(), child.getUid());
+      addInputForExisting(child.toString(), child.getUid());
     })
   }
 
   addNewBlankInput(e) {
-    let input = this.getNewBlankInputBox();
+    let input = getNewBlankInputBox();
     document.getElementsByTagName('inputarea')[0].append(input);
     if (e) {
-      let inputs = this.inputs();
+      let inputs = getInputs();
       inputs[inputs.length - 1].focus();
     }
   }
-    
-    
-  addInputForExisting(text, uid) {
-    let inputbox = this.getNewBlankInputBox();
-    inputbox.setAttribute('el-uid', uid);
-    inputbox.getElementsByClassName('ui-input')[0].value = text;
-    document.getElementsByTagName('inputarea')[0].append(inputbox);
-  }
-
-  getNewBlankInputBox() {
-    let inputbox = document.createElement('inputbox');
-    inputbox.id = createUid();
-    let inputEl = document.createElement('input');
-    inputEl.placeholder = 'new Line, Point, Function';
-    inputEl.oninput = controlGraphObjectCreation;
-    inputEl.className = 'ui-input';
-    let deleteBtn = document.createElement('button');
-    deleteBtn.className = 'delete-btn';
-    deleteBtn.innerText = '×';
-    deleteBtn.onclick = this.deleteInput;
-    inputbox.append(inputEl);
-    inputbox.append(deleteBtn);
-    return inputbox;
-  }
-
-  inputs() {
-    return [...document.getElementsByClassName('ui-input')];
-  }
-
-  getInput(index) {
-    return this.inputs()[index];
-  }
-
-  deleteInput() {
-    // delete graph object
-    let uid = this.parentElement.getAttribute('el-uid');
-    mainField.removeChildByUid(uid);
-    draw();
-    // delete input element
-    this.parentElement.remove();
-  }
-
-  controlInput(e) {
-    switch (e.key) {
-      case 'Tab' :
-        e.preventDefault();
-        if (keyIsDown(SHIFT)) {
-          this.focusOnLastInput();
-        } else {
-          this.focusOnNextInput();
-        }
-        break;
-      case 'Enter' :
-        document.getElementById('new-input-btn').click();
-        break;
-      case 'Backspace' :
-        let activeInput = document.activeElement;
-        if (!activeInput.value) {
-          e.preventDefault();
-          this.focusOnLastInput();
-          activeInput.parentElement.remove();
-        }
-        break;
-    }
-  }
-
+  
 }
