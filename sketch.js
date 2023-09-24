@@ -17,9 +17,9 @@ function setup() {
   
   
   let kids = [
-    new Gradient((x,y) => {
-      return 2*(x*y*cos(x)**2*sin(y)**2)/(x*y);
-    })
+    // new Gradient((x,y) => {
+    //   return 2*(x*y*cos(x)**2*sin(y)**2)/(x*y);
+    // })
   ];
   mainField.setChildren(kids);
   
