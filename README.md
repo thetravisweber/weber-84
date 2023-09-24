@@ -1,7 +1,7 @@
 # weber-84
 Web Based Graphing Calculator, designed to help me explore certain math principles, namely matrix transformations.
 
-You can view a working version of it here: https://weber-84.herokuapp.com/. (directions not included)
+You can view a working version of it here: [Weber-84 hosted by Netlify](https://elaborate-pegasus-3533db.netlify.app/). (directions not included)
 
 ## Setup
 
