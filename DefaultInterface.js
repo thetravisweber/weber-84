@@ -10,6 +10,37 @@ function mouseWheel(event) {
   draw();
 }; 
 
+function addInputForExisting(text, uid) {
+  let inputbox = getNewBlankInputBox();
+  inputbox.setAttribute('el-uid', uid);
+  inputbox.getElementsByClassName('ui-input')[0].value = text;
+  document.getElementsByTagName('inputarea')[0].append(inputbox);
+}
+
+function getNewBlankInputBox() {
+  let inputbox = document.createElement('inputbox');
+  inputbox.id = createUid();
+  let inputEl = document.createElement('input');
+  inputEl.placeholder = 'new Line, Point, Function';
+  inputEl.oninput = controlGraphObjectCreation;
+  inputEl.className = 'ui-input';
+  let deleteBtn = document.createElement('button');
+  deleteBtn.className = 'delete-btn';
+  deleteBtn.innerText = '×';
+  deleteBtn.onclick = deleteInput;
+  inputbox.append(inputEl);
+  inputbox.append(deleteBtn);
+  return inputbox;
+}
+
+function getInputs() {
+  return [...document.getElementsByClassName('ui-input')];
+}
+
+function getInput(index) {
+  return getInputs()[index];
+}
+
 function controlGraphObjectCreation() {
   if (this.parentElement.getAttribute('el-uid')) {
     mainField.removeChildByUid(this.parentElement.getAttribute('el-uid'));
@@ -67,8 +98,41 @@ function controlGraphObjectCreation() {
   draw();
 }
 
+function deleteInput() {
+  // delete graph object
+  let uid = this.parentElement.getAttribute('el-uid');
+  mainField.removeChildByUid(uid);
+  draw();
+  // delete input element
+  this.parentElement.remove();
+}
+
 function createUid() {
   return Math.floor( Math.random() * Number.MAX_SAFE_INTEGER );
+}
+
+function controlInput(e) {
+  switch (e.key) {
+    case 'Tab' :
+      e.preventDefault();
+      if (keyIsDown(SHIFT)) {
+        focusOnLastInput();
+      } else {
+        focusOnNextInput();
+      }
+      break;
+    case 'Enter' :
+      document.getElementById('new-input-btn').click();
+      break;
+    case 'Backspace' :
+      let activeInput = document.activeElement;
+      if (!activeInput.value) {
+        e.preventDefault();
+        focusOnLastInput();
+        activeInput.parentElement.remove();
+      }
+      break;
+  }
 }
 
 function getVariable(variable) {
