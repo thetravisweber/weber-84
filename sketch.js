@@ -19,6 +19,11 @@ function setup() {
   let kids = [
     // new Gradient((x,y) => {
     //   return 2*(x*y*cos(x)**2*sin(y)**2)/(x*y);
+    // }),
+    // new VectorField((x, y) => {
+    //   return sin(x+y);
+    // }, (x, y) => {
+    //   return cos(x-y);
     // })
   ];
   mainField.setChildren(kids);
