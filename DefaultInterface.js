@@ -511,8 +511,13 @@ function resetVectorStart() {
 
 function addPoint(x, y) {
   let unmapped = mainField.unmapPoint(x, y);
-  mainField.addChild(new Point(unmapped.x, unmapped.y));
+  const point = new Point(unmapped.x, unmapped.y);
+  mainField.addChild(point);
   draw();
+  mainField.getChildren().forEach(graphObject => {
+    if (graphObject.type === VECTOR_FIELD)
+      movePointAlongVectorField(point, graphObject);
+  });
 }
 
 function dragPoint() {
@@ -683,4 +688,35 @@ function updateFocus() {
 
 function openAnalysisMenu(x, y, analyzedElement) {
   popup = new Popup(x, y, analyzedElement);
+}
+
+function movePointAlongVectorField(point, vectorField) {
+  const FRAMERATE = 60;
+  const TIMEOUT = 1000 / FRAMERATE;
+  const FRICTION = 0.05;
+  let velocities = {
+    x: 0, 
+    y: 0
+  };
+  move();
+  function move() {
+    let x = point.x;
+    let y = point.y;
+    let new_velocities = {
+      x: vectorField._xFunc(x, y),
+      y: vectorField._yFunc(x, y)
+    };
+    velocities.x *= FRICTION;
+    velocities.y *= FRICTION;
+
+    velocities.x += new_velocities.x;
+    velocities.y += new_velocities.y;
+
+    // point.x += velocities.x;
+    // point.y += velocities.y;
+    point.x += new_velocities.x;
+    point.y += new_velocities.y;
+    draw();
+    setTimeout(move, TIMEOUT);
+  }
 }

@@ -49,6 +49,9 @@ let kids = [
     })
 ];
 ```
+
+If the graph contains a vector field or gradient and you add a point by clicking while in 'Add Point' mode (press 'P' hotkey), the point will move along the vector field.
+
 ![Vector Field](Screenshots/Vector_Field.png)
 ![Gradient](Screenshots/Gradient.png)
 

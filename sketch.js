@@ -24,7 +24,12 @@ function setup() {
     //   return sin(x+y);
     // }, (x, y) => {
     //   return cos(x-y);
-    // })
+    // }),
+    // new VectorField((x, y) => {
+    //   return cos(x)-sin(y)**2;
+    // }, (x, y) => {
+    //   return cos(y)-sin(x)**2;
+    // }),
   ];
   mainField.setChildren(kids);
   
